@@ -1,0 +1,48 @@
+class Keyboard extends JFrame {
+
+   // all key but BSP
+   String qwerty = "QWERTYUIOPASDFGHJKLZXCVBNM ";
+   JTextField field;
+
+   Keyboard() {
+      super("Keyboard");
+      .... set layout
+
+      // create TextField
+      field = new JTextField(80);
+
+      // create buttons
+      for(int i = 0; i < qwerty.length(); i++) {
+          String label = "" + qwerty.charAt(i);
+          add(new MyButton(label));
+      }
+      add(new BSPButton());
+
+      ....
+
+      class MyButton extends JButton implements ActionListener {
+
+         // constructor
+         MyButton(String name) {
+            super(name);
+            addActionListener(this);
+         }
+         // button was hit
+         public void actionPerformed(ActionEvent e) {
+           field.append(getText());    // append to field my label
+         }
+       }
+
+       class BSPButton extends JButton implements ActionListener {
+
+          BSPButton() {
+            super("BSP");
+            addActionListener(this);
+          }
+          public void actionPerformed(ActionEvent e) {
+            String text = field.getText();
+            if(text.length() == 0) 
+               return;
+            field.setText(text.subString(text.length() - 1));
+          }
+        }
