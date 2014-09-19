@@ -1,9 +1,11 @@
 package backend.dictionary;
 
-public class AlphaNode
+public class AlphaNode implements Comparable<AlphaNode>
 {
 	protected final char character;
 	protected boolean isWord;
+	protected double usage;
+	protected String word;
 	
 	protected final AlphaNode parent;
 	protected final AlphaNode[] nextLetters;
@@ -14,14 +16,16 @@ public class AlphaNode
 		this.isWord = false;
 		this.nextLetters = new AlphaNode[26];
 		this.parent = null;
+		this.usage = Double.NaN;
+		this.word = null;
 	}
 	
 	public AlphaNode(char character, AlphaNode parent)
 	{
-		this(character, false, parent);
+		this(character, false, Double.NaN, null, parent);
 	}
 	
-	public AlphaNode(char character, boolean isWord, AlphaNode parent)
+	public AlphaNode(char character, boolean isWord, double usage, String word, AlphaNode parent)
 	{
 		if(!Character.isAlphabetic(character) || parent == null)
 		{
@@ -31,6 +35,8 @@ public class AlphaNode
 		this.nextLetters = new AlphaNode[26];
 		this.character = Character.toUpperCase(character);
 		this.isWord = isWord;
+		this.usage = usage;
+		this.word = word;
 	}
 	
 	protected boolean isSuffix(String suffix)
@@ -52,10 +58,10 @@ public class AlphaNode
 		{
 			return false;
 		}
-		return this.nextLetters[index].addSuffix(suffix);
+		return this.nextLetters[index].isSuffix(suffix);
 	}
 	
-	protected boolean addSuffix(String suffix)
+	protected boolean addSuffix(String suffix, double usage, String wholeWord)
 	{
 		if(suffix.charAt(0) != this.character)
 		{
@@ -67,6 +73,8 @@ public class AlphaNode
 		if(suffix.isEmpty())
 		{
 			this.isWord = true;
+			this.usage = usage;
+			this.word = wholeWord;
 			return true;
 		}
 		
@@ -75,17 +83,7 @@ public class AlphaNode
 		{
 			this.nextLetters[index] = new AlphaNode(suffix.charAt(0),this);
 		}
-		return this.nextLetters[index].addSuffix(suffix);
-	}
-	
-	public AlphaNode getParent()
-	{
-		return this.parent;
-	}
-	
-	public AlphaNode getChild(char c)
-	{
-		return this.nextLetters[Character.toUpperCase(c) - 'A'];
+		return this.nextLetters[index].addSuffix(suffix, usage, wholeWord);
 	}
 	
 	protected AlphaNode getNode(String str)
@@ -108,5 +106,41 @@ public class AlphaNode
 			return null;
 		}
 		return this.nextLetters[index].getNode(str);
+	}
+	
+	public AlphaNode getParent()
+	{
+		return this.parent;
+	}
+	
+	public AlphaNode getChild(char c)
+	{
+		return this.nextLetters[Character.toUpperCase(c) - 'A'];
+	}
+	
+	public boolean isWord()
+	{
+		return this.isWord;
+	}
+	
+	public double getUsage()
+	{
+		return this.usage;
+	}
+	
+	public String getWord()
+	{
+		return this.word;
+	}
+	
+	//Their priority
+	@Override
+	public int compareTo(AlphaNode o)
+	{
+		if(this.usage == o.usage)
+		{
+			return 0;
+		}
+		return this.usage > o.usage ? 1 : -1;
 	}
 }

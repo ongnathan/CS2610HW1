@@ -24,14 +24,14 @@ public class RootAlphaNode extends AlphaNode
 		return super.getNode(str);
 	}
 	
-	public boolean addWord(String word)
+	public boolean addWord(String word, double usage)
 	{
 		word = word.trim().toUpperCase();
 		if(word.length() == 0)
 		{
 			return false;
 		}
-		return super.addSuffix(word);
+		return super.addSuffix(word, usage, word);
 	}
 	
 	public boolean isWord(String word)
