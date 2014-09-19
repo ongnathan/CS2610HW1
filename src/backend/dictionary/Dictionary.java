@@ -1,6 +1,8 @@
 package backend.dictionary;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -9,6 +11,8 @@ import java.util.Queue;
 public class Dictionary
 {
 	private RootAlphaNode root;
+	
+	public static final String DELIMITER = "_";
 	
 	public Dictionary()
 	{
@@ -34,21 +38,24 @@ public class Dictionary
 	}
 	
 	/**
-	 * String style: "$LETERS$SMORE$"
-	 * The letters that are guaranteed to be in the word: "LSE" because they are next to the $.
+	 * String style: "-LETERS-SMORE-"
+	 * The letters that are guaranteed to be in the word: "LSE" because they are next to the -.
 	 * The String should not contain repeated letters inside each group.
 	 * @param letterGroups
 	 * @return
 	 */
 	public PriorityQueue<AlphaNode> getPotentialWords(String letterGroups)
 	{
-		if(!letterGroups.contains("$"))
+		if(!letterGroups.contains(DELIMITER))
 		{
-			throw new IllegalArgumentException("Please use the $ as a delimiter");
+			throw new IllegalArgumentException("Please use the " + DELIMITER + " as a delimiter");
 		}
 		
 		letterGroups = letterGroups.trim().toUpperCase();
-		String[] letterPhrases = letterGroups.split("$");
+		String[] letterPhrasesTemp = letterGroups.split(DELIMITER);
+//		System.out.println(letterPhrasesTemp.length);
+		String[] letterPhrases = new String[letterPhrasesTemp.length-1]; 
+		System.arraycopy(letterPhrasesTemp, 1, letterPhrases, 0, letterPhrasesTemp.length-1);
 		for(int i = 0; i < letterPhrases.length-1; i++)
 		{
 			if(letterPhrases[i].charAt(letterPhrases[i].length()-1) != letterPhrases[i+1].charAt(0))
@@ -57,7 +64,7 @@ public class Dictionary
 			}
 		}
 		
-		PriorityQueue<AlphaNode> potentialWords = new PriorityQueue<AlphaNode>();
+		PriorityQueue<AlphaNode> potentialWords = new PriorityQueue<AlphaNode>(100, Collections.reverseOrder());
 		
 		Queue<AlphaNode> potentialNodes = new LinkedList<AlphaNode>();
 		potentialNodes.add(this.root);
@@ -183,16 +190,16 @@ public class Dictionary
 	public static void main(String[] args)
 	{
 		Dictionary d = new Dictionary();
-		d.addWord("HELLO", 10);
-		d.addWord("HELL", 5);
-		d.addWord("HE", 15);
-		String test = "$HELO$";
+		d.addWord("WATER", 15);
+		d.addWord("WAITER", 5);
+		d.addWord("WATTER", 10);
+		String test = "_WAITER_";
 //		String[] testStuff = listPotentialString(test,3);
 //		Arrays.sort(testStuff, new DifferentStringComparator());
-		Collection<AlphaNode> testStuff = d.getPotentialWords(test);
-		for(AlphaNode nodes : testStuff)
+		PriorityQueue<AlphaNode> testStuff = d.getPotentialWords(test);
+		while(!testStuff.isEmpty())
 		{
-			System.out.println(nodes.getWord());
+			System.out.println(testStuff.remove().getWord());
 		}
 	}
 }
