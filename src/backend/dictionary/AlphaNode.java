@@ -33,23 +33,29 @@ public class AlphaNode
 		this.isWord = isWord;
 	}
 	
-	public boolean isWord(String word)
+	protected boolean isSuffix(String suffix)
 	{
-		//FIXME
-		return false;
-	}
-	
-	public boolean addWord(String word)
-	{
-		word = word.trim().toUpperCase();
-		if(word.length() == 0)
+		if(suffix.charAt(0) != this.character)
 		{
 			return false;
 		}
-		return this.addSuffix(word);
+		
+		suffix = suffix.substring(1, suffix.length());
+		
+		if(suffix.isEmpty())
+		{
+			return this.isWord;
+		}
+		
+		int index = suffix.charAt(0) - 'A';
+		if(this.nextLetters[index] == null)
+		{
+			return false;
+		}
+		return this.nextLetters[index].addSuffix(suffix);
 	}
 	
-	private boolean addSuffix(String suffix)
+	protected boolean addSuffix(String suffix)
 	{
 		if(suffix.charAt(0) != this.character)
 		{
@@ -70,5 +76,37 @@ public class AlphaNode
 			this.nextLetters[index] = new AlphaNode(suffix.charAt(0),this);
 		}
 		return this.nextLetters[index].addSuffix(suffix);
+	}
+	
+	public AlphaNode getParent()
+	{
+		return this.parent;
+	}
+	
+	public AlphaNode getChild(char c)
+	{
+		return this.nextLetters[Character.toUpperCase(c) - 'A'];
+	}
+	
+	protected AlphaNode getNode(String str)
+	{
+		if(str.charAt(0) != this.character)
+		{
+			return null;
+		}
+		
+		str = str.substring(1, str.length());
+		
+		if(str.isEmpty())
+		{
+			return this;
+		}
+		
+		int index = str.charAt(0) - 'A';
+		if(this.nextLetters[index] == null)
+		{
+			return null;
+		}
+		return this.nextLetters[index].getNode(str);
 	}
 }
