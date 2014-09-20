@@ -1,5 +1,10 @@
 package backend.dictionary;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -126,7 +131,8 @@ public class Dictionary
 		
 		String[] possibleList = listAllStrings(str.substring(1,str.length()-1));
 		
-		int indexOfMult = ((position == 0 || position == 2) ? 2 : ((position == 1) ? 1 : 4));
+//		int indexOfMult = ((position == 0 || position == 2) ? 2 : ((position == 1) ? 1 : 4));
+		int indexOfMult = (position == 1 || position == 2) ? 2 : 4;
 		
 		String[] potentials = new String[possibleList.length*indexOfMult];
 		
@@ -135,20 +141,22 @@ public class Dictionary
 			String fromPossibleList = possibleList[i];
 			switch(position)
 			{
-				//Front
-				case 0:
-					potentials[indexOfMult*i] = first + fromPossibleList + last;
-					potentials[indexOfMult*i+1] = first + first + fromPossibleList + last;
-					break;
+//				//Front
+//				case 0:
+//					potentials[indexOfMult*i] = first + fromPossibleList + last;
+//					potentials[indexOfMult*i+1] = first + first + fromPossibleList + last;
+//					break;
 				//Middle
 				case 1:
-					potentials[i] = first + fromPossibleList + last;
-					break;
+//					potentials[i] = first + fromPossibleList + last;
+//					break;
 				//End
 				case 2:
 					potentials[indexOfMult*i] = first + fromPossibleList + last;
 					potentials[indexOfMult*i+1] = first + fromPossibleList + last + last;
 					break;
+				//Front
+				case 0:
 				//Both Front and End
 				case 3:
 					potentials[indexOfMult*i] = first + fromPossibleList + last;
@@ -187,13 +195,58 @@ public class Dictionary
 		return list;
 	}
 	
+	public static Dictionary importFromTextFile(String filename)
+	{
+		return importFromTextFile(new File(filename));
+	}
+	
+	public static Dictionary importFromTextFile(File file)
+	{
+		if(!file.exists() || !file.isFile())
+		{
+			throw new IllegalArgumentException("Invalid file " + file.getAbsolutePath());
+		}
+		
+		BufferedReader reader;
+		Dictionary d = new Dictionary();
+		
+		try
+		{
+			reader = new BufferedReader(new FileReader(file));
+			String word = reader.readLine();
+			while(word != null)
+			{
+				word = word.trim().toUpperCase();
+				if(word.isEmpty())
+				{
+					continue;
+				}
+				d.addWord(word, 1);//FIXME change usage values.
+				
+				word = reader.readLine();
+			}
+			
+			reader.close();
+		}
+		catch(FileNotFoundException e)
+		{
+			throw new IllegalStateException("Something went wrong");
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return d;
+	}
+	
 	public static void main(String[] args)
 	{
-		Dictionary d = new Dictionary();
-		d.addWord("WATER", 15);
-		d.addWord("WAITER", 5);
-		d.addWord("WATTER", 10);
-		String test = "_WAITER_";
+		Dictionary d = Dictionary.importFromTextFile("dictionary.txt");
+//		d.addWord("WATER", 15);
+//		d.addWord("WAITER", 5);
+//		d.addWord("WATTER", 10);
+		String test = "_HGRE_ERTYHJKL_LO_";
 //		String[] testStuff = listPotentialString(test,3);
 //		Arrays.sort(testStuff, new DifferentStringComparator());
 		PriorityQueue<AlphaNode> testStuff = d.getPotentialWords(test);
