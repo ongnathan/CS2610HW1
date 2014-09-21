@@ -4,10 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
@@ -16,14 +14,24 @@ public class draw extends JPanel implements MouseMotionListener{
 	int xs[] = {10,35,60,85,110,135,160,185,210,235,20,45,70,95,120,145,170,195,220,40,65,90,115,140,165,190};
 	char vals[] = {'Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M'};
 	char strlst[] = new char[100];
-	//int pt_x[] = new int[100];
-	//int pt_y[] = new int[100];
+	public int pt_x[] = new int[100];
+	public int pt_y[] = new int[100];
 	 int pt_pos = 0;
 	//strlst[0] = '_';
 	
 	recta r[]=new recta[26];
 	int pos = 0;
 	//recta t = new recta(10,50);
+	
+	draw obj = new draw();
+	
+	public void valueSet(int x, int y)
+	{
+		pt_x[pt_pos] = x;
+		pt_y[pt_pos] = y;
+		System.out.println(pt_x[pt_pos]+" "+pt_y[pt_pos]);
+		pt_pos ++;
+	}
 	
 	public draw()
 	{
@@ -47,6 +55,8 @@ public class draw extends JPanel implements MouseMotionListener{
 			r[i].val = vals[i];
 		}
 		//this.add(t);
+		Timer timer = new Timer();
+		timer.schedule(new RemindTask(mouseDragged,mx,my,obj),0, 100);
 	}
 	
 	int mx,my;
@@ -60,23 +70,10 @@ public class draw extends JPanel implements MouseMotionListener{
 		
 	}
 	
-	public static void main(String args[])
-	{
-		
-	draw  x = new draw();
 	
-	final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-    service.scheduleWithFixedDelay(new Runnable()
-      {
-        @Override
-        public void run()
-        {
-          System.out.println(new Date());
-        }
-      }, 0, 10, TimeUnit.SECONDS);
 	
     
-	}
+	
 	public void allDraw(int excp, Graphics g)
 	{
 		g.setColor(Color.BLUE);
@@ -101,18 +98,6 @@ public class draw extends JPanel implements MouseMotionListener{
 			r[i].paintComponent(g);
 		
 		
-		 
-		if(mouseDragged)
-		{
-		/*	if(pt_pos>0)
-			for(int i=0; i<pt_pos-1; i++)
-				g.drawLine(pt_x[i], pt_y[i], pt_x[i], pt_y[i+1]);
-				*/
-		}
-		
-		else
-		{
-		}
 	}
 
 	@Override
@@ -143,7 +128,7 @@ public class draw extends JPanel implements MouseMotionListener{
 					{
 						pos++;
 						strlst[pos]=r[i].val;
-						System.out.println(strlst[pos]);
+						//System.out.println(strlst[pos]);
 					}
 				}
 				else
@@ -160,7 +145,7 @@ public class draw extends JPanel implements MouseMotionListener{
 					{
 						pos++;
 						strlst[pos]=r[i].val;
-						System.out.println(strlst[pos]);
+						//System.out.println(strlst[pos]);
 					}
 				}
 				else
@@ -184,7 +169,7 @@ public class draw extends JPanel implements MouseMotionListener{
 						{
 							pos++;
 							strlst[pos]=r[i].val;
-							System.out.println(strlst[pos]);
+							//System.out.println(strlst[pos]);
 						}
 					}
 					else
@@ -201,7 +186,7 @@ public class draw extends JPanel implements MouseMotionListener{
 						{
 							pos++;
 							strlst[pos]=r[i].val;
-							System.out.println(strlst[pos]);
+							//System.out.println(strlst[pos]);
 						}
 					}
 					else
@@ -211,6 +196,47 @@ public class draw extends JPanel implements MouseMotionListener{
 				
 			}
 			
+		}//elif ends my 80
+		else if(my<115)
+		{
+			for(int i=19; i<26; i++)
+			{
+				if(i!=25)
+				{
+					if(mx>xs[i]&&mx<xs[i+1])
+					{
+						r[i].isOn = true;
+						if(strlst[pos]!=r[i].val)
+						{
+							pos++;
+							strlst[pos]=r[i].val;
+							//System.out.println(strlst[pos]);
+						}
+					}
+					else
+					{
+						r[i].isOn = false;
+					}
+				}
+				else
+				{
+					if(mx>xs[i]&&mx<xs[i]+20)
+					{
+						r[i].isOn = true;
+						if(strlst[pos]!=r[i].val)
+						{
+							pos++;
+							strlst[pos]=r[i].val;
+							//System.out.println(strlst[pos]);
+						}
+					}
+					else
+						r[i].isOn=false;
+				}
+				
+				
+			}
+		
 		}
 		
 		mouseDragged = true;
@@ -236,5 +262,36 @@ public class draw extends JPanel implements MouseMotionListener{
 		repaint();
 		e.consume();
 	}
+	
 
 }
+
+class RemindTask extends TimerTask {
+    //int numWarningBeeps = 3;
+
+	boolean mouse;
+	int xpos;
+	int ypos;
+	draw object;
+	
+	RemindTask(boolean mouseDragged, int mx, int my, draw obj)
+	{
+		mouse = mouseDragged;
+		xpos = mx;
+		ypos = my;
+		object = obj;
+		
+	}
+	
+    public void run() {
+     
+    	if(mouse)
+    	{
+    		object.valueSet(xpos, ypos);
+    	}
+    	
+    	
+        System.exit(0); //Stops the AWT thread (and everything else)
+      }
+    }
+  
