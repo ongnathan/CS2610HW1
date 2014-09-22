@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
+//import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,9 +13,15 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+/**
+ * Acts as the dictionary for the program.
+ * This dictionary also is able to parse swiped values.
+ * @author Nathan Ong and Jose Joseph
+ *
+ */
 public class Dictionary
 {
-	private RootAlphaNode root;
+	private RootAlphaNode root;	//The root node of the dictionary tree
 	
 	public static final String DELIMITER = "_";
 	
@@ -109,7 +115,7 @@ public class Dictionary
 					newPotentialNodes.add(potential);
 					if(i == letterPhrases.length-1 && potential.isWord())
 					{
-						System.out.println(potential.word + " " + potential.usage);
+//						System.out.println(potential.word + " " + potential.usage);
 						potentialWords.add(potential);
 					}
 				}
