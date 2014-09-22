@@ -72,9 +72,12 @@ public class AlphaNode implements Comparable<AlphaNode>
 		
 		if(suffix.isEmpty())
 		{
-			this.isWord = true;
-			this.usage = usage;
-			this.word = wholeWord;
+			if(!this.isWord)
+			{
+				this.isWord = true;
+				this.usage = usage;
+				this.word = wholeWord;
+			}
 			return true;
 		}
 		

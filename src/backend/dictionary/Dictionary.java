@@ -109,6 +109,7 @@ public class Dictionary
 					newPotentialNodes.add(potential);
 					if(i == letterPhrases.length-1 && potential.isWord())
 					{
+						System.out.println(potential.word + " " + potential.usage);
 						potentialWords.add(potential);
 					}
 				}
@@ -213,17 +214,30 @@ public class Dictionary
 		try
 		{
 			reader = new BufferedReader(new FileReader(file));
-			String word = reader.readLine();
-			while(word != null)
+			String line = reader.readLine();
+			while(line != null)
 			{
-				word = word.trim().toUpperCase();
-				if(word.isEmpty())
+				line = line.trim();
+				if(line.isEmpty())
 				{
+					line = reader.readLine();
 					continue;
 				}
-				d.addWord(word, 1);//FIXME change usage values.
 				
-				word = reader.readLine();
+				String[] split = line.split(" ");
+				split[1] = split[1].toUpperCase();
+				
+				if(split[1].matches("[A-Z]+"))
+				{
+//					System.out.println(split[1]);
+					if(!d.addWord(split[1], Double.parseDouble(split[0])))
+					{
+						reader.close();
+						throw new IllegalStateException("PROBLEM HERE");
+					}
+				}
+				
+				line = reader.readLine();
 			}
 			
 			reader.close();
@@ -236,17 +250,21 @@ public class Dictionary
 		{
 			e.printStackTrace();
 		}
+		catch(NumberFormatException e)
+		{
+			throw new IllegalArgumentException(e);
+		}
 		
 		return d;
 	}
 	
 	public static void main(String[] args)
 	{
-		Dictionary d = Dictionary.importFromTextFile("dictionary.txt");
+		Dictionary d = Dictionary.importFromTextFile("all.num"); //http://www.kilgarriff.co.uk/bnc-readme.html#raw
 //		d.addWord("WATER", 15);
 //		d.addWord("WAITER", 5);
 //		d.addWord("WATTER", 10);
-		String test = "_HGRE_ERTYHJKL_LO_";
+		String test = "_WA_ASDRT_TRE_ER_";
 //		String[] testStuff = listPotentialString(test,3);
 //		Arrays.sort(testStuff, new DifferentStringComparator());
 		PriorityQueue<AlphaNode> testStuff = d.getPotentialWords(test);
