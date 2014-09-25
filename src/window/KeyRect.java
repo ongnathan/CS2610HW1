@@ -1,5 +1,4 @@
 package window;
-//package playshapes;
 
 import java.awt.Color;
 import java.awt.Graphics;

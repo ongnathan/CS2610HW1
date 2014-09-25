@@ -2,33 +2,34 @@ package window;
 
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class Keyboard extends JPanel implements MouseMotionListener{
+public class Keyboard extends JPanel implements MouseMotionListener, MouseListener
+{
 	
-	int xs[] = {10,35,60,85,110,135,160,185,210,235,20,45,70,95,120,145,170,195,220,40,65,90,115,140,165,190};
-	char vals[] = {'Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M'};
-	char strlst[] = new char[100];
+	private final int xs[] = {10,35,60,85,110,135,160,185,210,235,20,45,70,95,120,145,170,195,220,40,65,90,115,140,165,190};
+	private final char charKeyVals[] = {'Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M'};
+	private char strlst[] = new char[100];
 	
-	//public int pt_x[] = new int[100];
-	//public int pt_y[] = new int[100];
-	 int pt_pos = 0;
+//	int pt_pos = 0;
 	 
-	 ArrayList<Integer> xco = new ArrayList<Integer>();	//All X coords
-	 ArrayList<Integer> yco = new ArrayList<Integer>();	//All Y coords
-	 ArrayList<Double> alist = new ArrayList<Double>();	//All angles, 0 --> 0, 1, 2
+	private ArrayList<Integer> mouseCoordX = new ArrayList<Integer>();	//All X coords
+	private ArrayList<Integer> mouseCoordY = new ArrayList<Integer>();	//All Y coords
+	private ArrayList<Double> listOfAngles = new ArrayList<Double>();	//All angles, 0 --> 0, 1, 2
 	
-	KeyRect r[]=new KeyRect[26];
-	int pos = 0;
-	//recta t = new recta(10,50);
+	private KeyRect r[]=new KeyRect[26];
+	private int pos = 0;
 	
-	//draw obj = new draw();
+	private int mx,my;
+	private int ox,oy;
 	
-	
-	
+	boolean mouseDragged=false;
+
 	public Keyboard()
 	{
 		addMouseMotionListener(this);
@@ -36,51 +37,42 @@ public class Keyboard extends JPanel implements MouseMotionListener{
 		{
 			r[i] = new KeyRect(xs[i], 15);
 			this.add(r[i]);
-			r[i].val = vals[i];
+			r[i].val = charKeyVals[i];
 		}
 		for(int i=10; i<19; i++)
 		{
 			r[i] = new KeyRect(xs[i],50);
 			this.add(r[i]);
-			r[i].val = vals[i];
+			r[i].val = charKeyVals[i];
 		}
 		for(int i=19; i<26; i++)
 		{
 			r[i] = new KeyRect(xs[i],85);
 			this.add(r[i]);
-			r[i].val = vals[i];
+			r[i].val = charKeyVals[i];
 		}
-		//this.add(t);
-		
 	}
 	
-	int mx,my;
-	int ox,oy;
-	
-	boolean mouseDragged=false;
-	
-	//on mouse release, you clear the buffer, set all red rectangles to empty (false)
-	
-	
-	public void drawing()
-	{
-		repaint();
-		
-	}
-	
+//	//on mouse release, you clear the buffer, set all red rectangles to empty (false)
+//	public void drawing()
+//	{
+//		repaint();
+//	}
 	
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
 		for(int i=0; i<26; i++)
-			r[i].paintComponent(g);
-		if(xco.size()>1)
 		{
-			for(int i=1; i<xco.size(); i++)
-				g.drawLine(xco.get(i-1),yco.get(i-1),xco.get(i),yco.get(i));
+			r[i].paintComponent(g);
 		}
-		
-		
+		if(mouseCoordX.size()>1)
+		{
+			for(int i=1; i<mouseCoordX.size(); i++)
+			{
+				g.drawLine(mouseCoordX.get(i-1),mouseCoordY.get(i-1),mouseCoordX.get(i),mouseCoordY.get(i));
+			}
+		}
 	}
 
 	@Override
@@ -90,8 +82,8 @@ public class Keyboard extends JPanel implements MouseMotionListener{
 		oy = my;
 		mx = e.getX();
 		my = e.getY();
-		xco.add(mx);
-		yco.add(my);
+		mouseCoordX.add(mx);
+		mouseCoordY.add(my);
 		strlst[0] = '_';
 		char hold='\0';
 		/*
@@ -100,14 +92,14 @@ public class Keyboard extends JPanel implements MouseMotionListener{
 		pos++;
 		*/
 		
-		if(xco.size()>3)
+		if(mouseCoordX.size()>3)
 		{
-			for(int i=alist.size(); i<xco.size()-3; i++)
+			for(int i=listOfAngles.size(); i<mouseCoordX.size()-3; i++)
 			{
-				double temp1 = Math.atan2(yco.get(i+2)-yco.get(i+1), xco.get(i+2)-xco.get(i+1));
-				double temp2 = Math.atan2(yco.get(i+1)-yco.get(i), xco.get(i+1)-xco.get(i));
+				double temp1 = Math.atan2(mouseCoordY.get(i+2)-mouseCoordY.get(i+1), mouseCoordX.get(i+2)-mouseCoordX.get(i+1));
+				double temp2 = Math.atan2(mouseCoordY.get(i+1)-mouseCoordY.get(i), mouseCoordX.get(i+1)-mouseCoordX.get(i));
 				double total = temp1 - temp2;
-				alist.add(Math.toDegrees(total));
+				listOfAngles.add(Math.toDegrees(total));
 				System.out.println("The total is "+Math.toDegrees(total));
 			}
 		}
@@ -255,7 +247,7 @@ public class Keyboard extends JPanel implements MouseMotionListener{
 		
 		System.out.print("New word set ");
 		for(int j=0; j<pos; j++)
-			System.out.print(strlst[j]+" angle("+alist.get(j)+")" );
+			System.out.print(strlst[j]+" angle("+listOfAngles.get(j)+")" );
 		System.out.println();
 		
 		mouseDragged = true;
@@ -281,7 +273,48 @@ public class Keyboard extends JPanel implements MouseMotionListener{
 		repaint();
 		e.consume();
 	}
+
+	@Override
+	public void mouseClicked(MouseEvent e)
+	{
+		//empty
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e)
+	{
+		//START TIMER
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e)
+	{
+		this.mouseCoordX.clear();
+		this.mouseCoordY.clear();
+		this.listOfAngles.clear();
+		//DO MATH?
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e)
+	{
+//		this.requestFocusInWindow(); //MAYBE?
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e)
+	{
+		
+	}
 	
-
+	public static void main(String args[])
+	{
+		Keyboard object = new Keyboard();
+		
+		JFrame frame = new JFrame("Test");
+		frame.add(object);
+		frame.setVisible(true);
+		frame.setSize(400,200);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
+	}
 }
-
