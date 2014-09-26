@@ -13,7 +13,8 @@ public class KeyRect extends JPanel
 	
 	private int leftX,topY;
 	
-	public boolean isOn;
+	public boolean isInDragged;
+	public boolean isIn;
 	
 	private final char keyChar;
 	
@@ -29,6 +30,9 @@ public class KeyRect extends JPanel
 		this.disp = String.valueOf(this.keyChar);
 		this.width = WIDTH;
 		this.height = HEIGHT;
+		
+		this.isInDragged = false;
+		this.isIn = false;
 	}
 	
 	public char getKeyChar()
@@ -43,22 +47,26 @@ public class KeyRect extends JPanel
 	
 	public void paintComponent(Graphics g)
 	{
-		//System.out.println("We're inside the cores of recta");
 		super.paintComponent(g);
 		
 		g.setColor(Color.BLACK);
 		g.drawChars(this.disp.toCharArray(), 0, this.disp.length(), this.leftX, this.topY);
 		
-		if(!isOn)
-		{
-			g.setColor(Color.BLACK);
-			g.drawRect(leftX, topY, this.width, this.height);
-		}
-		else
+		if(this.isInDragged)
 		{
 			g.setColor(Color.RED);
 			g.fillRect(leftX, topY, this.width, this.height);
-			System.out.print(keyChar);
+//			System.out.print(keyChar);
 		}
+		else if(this.isIn)
+		{
+			g.setColor(Color.RED);
+		}
+		else
+		{
+			g.setColor(Color.BLACK);
+//			g.drawRect(leftX, topY, this.width, this.height);
+		}
+		g.drawRect(leftX, topY, this.width, this.height);
 	}
 }
