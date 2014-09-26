@@ -1,15 +1,20 @@
 package window;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
 public class KeyRect extends JPanel
 {
-	public static final int WIDTH = 20;
-	public static final int HEIGHT = 30;
-	public static final int BORDER_ZONE = 5;
+	public static final int WIDTH = 40;
+	public static final int HEIGHT = 50;
+	public static final int BORDER_ZONE = 0;
+	
+	public static final int FONT_SIZE = 16;
+	public static final int FONT_BUFFER_WIDTH = 10;
+	public static final int FONT_BUFFER_HEIGHT = 15;
 	
 	private int leftX,topY;
 	
@@ -49,9 +54,6 @@ public class KeyRect extends JPanel
 	{
 		super.paintComponent(g);
 		
-		g.setColor(Color.BLACK);
-		g.drawChars(this.disp.toCharArray(), 0, this.disp.length(), this.leftX, this.topY);
-		
 		if(this.isInDragged)
 		{
 			g.setColor(Color.RED);
@@ -68,5 +70,9 @@ public class KeyRect extends JPanel
 //			g.drawRect(leftX, topY, this.width, this.height);
 		}
 		g.drawRect(leftX, topY, this.width, this.height);
+		
+		g.setColor(Color.BLACK);
+		g.setFont(new Font("default", Font.BOLD, FONT_SIZE));
+		g.drawChars(this.disp.toCharArray(), 0, this.disp.length(), this.leftX+FONT_BUFFER_WIDTH, this.topY+FONT_BUFFER_HEIGHT);
 	}
 }
