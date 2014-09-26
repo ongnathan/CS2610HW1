@@ -45,6 +45,11 @@ public class KeyRect extends JPanel
 		return this.keyChar;
 	}
 	
+	public boolean isInside(Coordinate c)
+	{
+		return this.isInside(c.x, c.y);
+	}
+	
 	public boolean isInside(int x, int y)
 	{
 		return x >= this.leftX && x <= this.leftX + this.width && y >= this.topY && y <= this.topY + this.height;
