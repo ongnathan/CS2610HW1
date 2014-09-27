@@ -12,6 +12,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
+import backend.dictionary.Dictionary;
+
 public class Keyboard extends JPanel implements MouseInputListener
 {
 	private static final int ROW_ONE_LOC = 15;
@@ -34,7 +36,7 @@ public class Keyboard extends JPanel implements MouseInputListener
 	
 	private static final int PERIOD = 20;
 	
-	private static final double BIG_THRESHOLD = 120.0;
+	private static final double BIG_THRESHOLD = 130.0;
 	private static final double SMALL_THRESHOLD = 10.0;
 	
 //	private static final int xs[] = {10,35,60,85,110,135,160,185,210,235,20,45,70,95,120,145,170,195,220,40,65,90,115,140,165,190,40};
@@ -123,103 +125,172 @@ public class Keyboard extends JPanel implements MouseInputListener
 //			return String.valueOf(chars.get(0)) + String.valueOf(chars.get(1));
 //		}
 		
-		final double[] listOfAngles = new double[chars.size()];
-		listOfAngles[0] = Double.NaN;
-		for(int i = 1; i < listOfAngles.length-2; i++)
-		{
-			Coordinate after = this.mouseCoords.get(i+1);
-			Coordinate middle = this.mouseCoords.get(i);
-			Coordinate before = this.mouseCoords.get(i-1);
-			//FIXME need to change how to compute this since the x/y coordinates are different.
-			double angle1 = Math.atan2(((double)after.y - middle.y), ((double)after.x - middle.x));
-			double angle2 = Math.atan2(((double)middle.y - before.y), ((double)middle.x - before.x));
-//			double angle1 = 0.0;
-//			double angle2 = 0.0;
-//			if(after.x - middle.x == 0)
-//			{
-//				if(after.y - middle.y > 0)
-//				{
-//					angle1 = Math.PI/2;
-//				}
-//				else if(after.y - middle.y < 0)
-//				{
-//					angle1 = -Math.PI/2;
-//				}
-//			}
-//			else
-//			{
-//				angle1 = Math.atan((after.y-middle.y)/(after.x-middle.x));
-//			}
+//		final double[] listOfAngles = new double[chars.size()];
+//		listOfAngles[0] = Double.NaN;
+//		for(int i = 1; i < listOfAngles.length-2; i++)
+//		{
+//			Coordinate after = this.mouseCoords.get(i+1);
+//			Coordinate middle = this.mouseCoords.get(i);
+//			Coordinate before = this.mouseCoords.get(i-1);
+//			//FIXME need to change how to compute this since the x/y coordinates are different.
+//			listOfAngles[i] = Coordinate.getAngle(before, middle, after);
+////			double angle1 = Math.atan2(((double)after.y - middle.y), ((double)after.x - middle.x));
+////			double angle2 = Math.atan2(((double)middle.y - before.y), ((double)middle.x - before.x));
+//////			double angle1 = 0.0;
+//////			double angle2 = 0.0;
+//////			if(after.x - middle.x == 0)
+//////			{
+//////				if(after.y - middle.y > 0)
+//////				{
+//////					angle1 = Math.PI/2;
+//////				}
+//////				else if(after.y - middle.y < 0)
+//////				{
+//////					angle1 = -Math.PI/2;
+//////				}
+//////			}
+//////			else
+//////			{
+//////				angle1 = Math.atan((after.y-middle.y)/(after.x-middle.x));
+//////			}
+//////			
+//////			if(middle.x - before.x == 0)
+//////			{
+//////				if(middle.y - before.y > 0)
+//////				{
+//////					angle2 = Math.PI/2;
+//////				}
+//////				else if(middle.y - before.y < 0)
+//////				{
+//////					angle2 = -Math.PI/2;
+//////				}
+//////			}
+//////			else
+//////			{
+//////				angle2 = Math.atan((middle.y-before.y)/(middle.x-before.x));
+//////			}
+//////			
+////////			double angle1 = Math.atan((after.y-middle.y)/(after.x-middle.x));
+////////			double angle2 = Math.atan((middle.y-before.y)/(middle.x-before.x));
+////			System.out.println("(" + middle.x + "," + middle.y + ") => (" + after.x + "," + after.y + ") ==> " + Math.toDegrees(angle1));
+////			System.out.println("(" + before.x + "," + before.y + ") => (" + middle.x + "," + middle.y + ") ==> " + Math.toDegrees(angle2));
+////			double realAngle = angle1 - angle2;
+////			System.out.println("Total angle = " + Math.toDegrees(realAngle));
+////			System.out.println("----------");
+////			listOfAngles[i] = Math.toDegrees(realAngle);
 //			
-//			if(middle.x - before.x == 0)
-//			{
-//				if(middle.y - before.y > 0)
-//				{
-//					angle2 = Math.PI/2;
-//				}
-//				else if(middle.y - before.y < 0)
-//				{
-//					angle2 = -Math.PI/2;
-//				}
-//			}
-//			else
-//			{
-//				angle2 = Math.atan((middle.y-before.y)/(middle.x-before.x));
-//			}
-//			
-////			double angle1 = Math.atan((after.y-middle.y)/(after.x-middle.x));
-////			double angle2 = Math.atan((middle.y-before.y)/(middle.x-before.x));
-			System.out.println("(" + middle.x + "," + middle.y + ") <=> (" + after.x + "," + after.y + ") ==> " + angle1);
-			double realAngle = angle1 - angle2;
-			listOfAngles[i] = Math.toDegrees(realAngle);
-			
-//			double angle1 = 
-//			
-//			listOfAngles[i]
-//			System.out.println("The total is "+Math.toDegrees(total));
-		}
-		listOfAngles[listOfAngles.length-1] = Double.NaN;
+////			double angle1 = 
+////			
+////			listOfAngles[i]
+////			System.out.println("The total is "+Math.toDegrees(total));
+//		}
+//		listOfAngles[listOfAngles.length-1] = Double.NaN;
 		
 		//FIXME DO SOMETHING
 		
-		StringBuilder sb = new StringBuilder(String.valueOf('_'));
+		StringBuilder sb = new StringBuilder(Dictionary.DELIMITER + String.valueOf(chars.get(0)));
 //		for(int i = 0; i < chars.size(); i++)
 //		{
 //			sb.append(chars.get(i));
 //		}
 		
-		boolean isCorner = false;
-		for(int i = 0; i < listOfAngles.length; i++)
+		int i = 0;
+		Coordinate prevCoord = this.mouseCoords.get(0);
+		Coordinate thisCoord = this.mouseCoords.get(1);
+		for(i = 2; i < chars.size()-1 && Coordinate.tooClose(prevCoord, thisCoord); i++)
 		{
-			if(!isCorner && sb.charAt(sb.length()-1) == chars.get(i).charValue())
+			thisCoord = this.mouseCoords.get(i);
+		}
+		if(i >= chars.size()-1)
+		{
+			sb.append(String.valueOf(chars.get(chars.size()-1)) + String.valueOf('_'));
+			return sb.toString();
+		}
+		
+		boolean isCorner = false;
+		out: for(; i < chars.size()-1; i++)
+		{
+			char thisChar = chars.get(i);
+			Coordinate nextCoord = this.mouseCoords.get(i+1);
+			do
 			{
-				if(listOfAngles[i] != 0.0 && (listOfAngles[i] < BIG_THRESHOLD && listOfAngles[i] > SMALL_THRESHOLD) ||  (listOfAngles[i] > -BIG_THRESHOLD && listOfAngles[i] < -SMALL_THRESHOLD))
+				i++;
+				if(i >= chars.size() - 1)
 				{
-					System.out.println(listOfAngles[i]);
-					sb.append("_" + String.valueOf(chars.get(i)));
-					isCorner = true;
+					break out;
 				}
-				continue;
-			}
-//			else if(!isCorner)
-//			{
-			else if(!isCorner && listOfAngles[i] != 0.0 && (listOfAngles[i] < BIG_THRESHOLD && listOfAngles[i] > SMALL_THRESHOLD) ||  (listOfAngles[i] > -BIG_THRESHOLD && listOfAngles[i] < -SMALL_THRESHOLD))
+				nextCoord = this.mouseCoords.get(i);
+			}while(Coordinate.tooClose(thisCoord, nextCoord));
+			
+			//CHECK CORNER
+			if(!isCorner)
 			{
-				System.out.println(listOfAngles[i]);
-				sb.append(String.valueOf(chars.get(i)) + "_" + String.valueOf(chars.get(i)));
-				isCorner = true;
-				continue;
+				double angle = Coordinate.getAngle(prevCoord, thisCoord, nextCoord);
+//				if((angle < BIG_THRESHOLD && angle > SMALL_THRESHOLD) || (angle > -BIG_THRESHOLD && angle < -SMALL_THRESHOLD))
+				if(angle < BIG_THRESHOLD && angle > -BIG_THRESHOLD)
+				{
+					if(String.valueOf(sb.charAt(sb.length()-2)) != Dictionary.DELIMITER)
+					{
+						if(sb.charAt(sb.length()-1) != thisChar)
+						{
+							sb.append(String.valueOf(thisChar));
+						}
+						sb.append(Dictionary.DELIMITER + String.valueOf(thisChar));
+					}
+					prevCoord = thisCoord;
+					thisCoord = nextCoord;
+					isCorner = true;
+					continue;
+				}
 			}
+			
+			//CHECK SAME CHARACTER
+			if(sb.charAt(sb.length()-1) != thisChar)
+			{
+				sb.append(String.valueOf(thisChar));
+			}
+			
+			prevCoord = thisCoord;
+			thisCoord = nextCoord;
+			isCorner = false;
+			
+//			if(lastCoord == null || (Math.abs(thisCoord.y-lastCoord.y) > 5 && Math.abs(thisCoord.x - lastCoord.x) > 5))
+//			{
+//				if(isCorner && sb.charAt(sb.length()-1) == chars.get(i).charValue())
+//				{
+////					if(listOfAngles[i] != 0.0 && ((listOfAngles[i] < BIG_THRESHOLD && listOfAngles[i] > SMALL_THRESHOLD) ||  (listOfAngles[i] > -BIG_THRESHOLD && listOfAngles[i] < -SMALL_THRESHOLD)))
+////					{
+////						System.out.println(listOfAngles[i]);
+////						sb.append("_" + String.valueOf(chars.get(i)));
+////						isCorner = true;
+////					}
+//					continue;
+//				}
+//				else if(listOfAngles[i] != 0.0 && (listOfAngles[i] < BIG_THRESHOLD && listOfAngles[i] > SMALL_THRESHOLD) ||  (listOfAngles[i] > -BIG_THRESHOLD && listOfAngles[i] < -SMALL_THRESHOLD))
+//				{
+//					System.out.println(listOfAngles[i]);
+//					sb.append(String.valueOf(chars.get(i)) + "_" + String.valueOf(chars.get(i)));
+//					isCorner = true;
+//					continue;
+//				}
+//				
+//				sb.append(String.valueOf(chars.get(i)));
+//				
+//				lastCoord = thisCoord;
+//				
+//				isCorner = false;
 //			}
-//			else if(sb.charAt(sb.length()-1) == chars.get(i).charValue())
+//			else
 //			{
 //				continue;
 //			}
-			sb.append(String.valueOf(chars.get(i)));
-			
-			isCorner = false;
 		}
-		sb.append(String.valueOf('_'));
+		
+		if(sb.charAt(sb.length()-1) != chars.get(chars.size()-1))
+		{
+			sb.append(String.valueOf(chars.get(chars.size()-1)));
+		}
+		sb.append(Dictionary.DELIMITER);
 		return sb.toString();
 	}
 	
@@ -239,8 +310,8 @@ public class Keyboard extends JPanel implements MouseInputListener
 		}
 		
 		Coordinate lastCoor = this.mouseCoords.get(this.mouseCoords.size()-1);
-		if((this.mouseCoords.isEmpty() && isDragged) || (Math.abs(lastCoor.y-currMousePosition.y) > 4 && Math.abs(lastCoor.x - currMousePosition.x) > 4))
-		{/*!this.mouseCoords.get(this.mouseCoords.size()-1).equals(currMousePosition)*/
+		if((this.mouseCoords.isEmpty() && isDragged) || !this.mouseCoords.get(this.mouseCoords.size()-1).equals(currMousePosition))
+		{
 //			if(this.mouseCoordX.isEmpty())
 //			{
 //				System.out.println("(" + currX + "," + currY + ")");
