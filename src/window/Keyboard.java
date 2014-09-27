@@ -32,9 +32,10 @@ public class Keyboard extends JPanel implements MouseInputListener
 	private static final int NUM_KEYS_ROW_THREE = 7;
 	private static final int NUM_KEYS_ROW_FOUR = CHARACTER_KEY_ARRAY.length - NUM_KEYS_ROW_ONE - NUM_KEYS_ROW_TWO - NUM_KEYS_ROW_THREE;
 	
-	private static final int PERIOD = 10;
+	private static final int PERIOD = 20;
 	
-	private static final double THRESHOLD = 120.0;
+	private static final double BIG_THRESHOLD = 120.0;
+	private static final double SMALL_THRESHOLD = 10.0;
 	
 //	private static final int xs[] = {10,35,60,85,110,135,160,185,210,235,20,45,70,95,120,145,170,195,220,40,65,90,115,140,165,190,40};
 //	private char strlst[] = new char[100];
@@ -130,10 +131,51 @@ public class Keyboard extends JPanel implements MouseInputListener
 			Coordinate middle = this.mouseCoords.get(i);
 			Coordinate before = this.mouseCoords.get(i-1);
 			//FIXME need to change how to compute this since the x/y coordinates are different.
-			double angle1 = Math.atan2((after.y - middle.y), (after.x - middle.x));
-			double angle2 = Math.atan2((middle.y - before.y), (middle.x - before.x));
+			double angle1 = Math.atan2(((double)after.y - middle.y), ((double)after.x - middle.x));
+			double angle2 = Math.atan2(((double)middle.y - before.y), ((double)middle.x - before.x));
+//			double angle1 = 0.0;
+//			double angle2 = 0.0;
+//			if(after.x - middle.x == 0)
+//			{
+//				if(after.y - middle.y > 0)
+//				{
+//					angle1 = Math.PI/2;
+//				}
+//				else if(after.y - middle.y < 0)
+//				{
+//					angle1 = -Math.PI/2;
+//				}
+//			}
+//			else
+//			{
+//				angle1 = Math.atan((after.y-middle.y)/(after.x-middle.x));
+//			}
+//			
+//			if(middle.x - before.x == 0)
+//			{
+//				if(middle.y - before.y > 0)
+//				{
+//					angle2 = Math.PI/2;
+//				}
+//				else if(middle.y - before.y < 0)
+//				{
+//					angle2 = -Math.PI/2;
+//				}
+//			}
+//			else
+//			{
+//				angle2 = Math.atan((middle.y-before.y)/(middle.x-before.x));
+//			}
+//			
+////			double angle1 = Math.atan((after.y-middle.y)/(after.x-middle.x));
+////			double angle2 = Math.atan((middle.y-before.y)/(middle.x-before.x));
+			System.out.println("(" + middle.x + "," + middle.y + ") <=> (" + after.x + "," + after.y + ") ==> " + angle1);
 			double realAngle = angle1 - angle2;
 			listOfAngles[i] = Math.toDegrees(realAngle);
+			
+//			double angle1 = 
+//			
+//			listOfAngles[i]
 //			System.out.println("The total is "+Math.toDegrees(total));
 		}
 		listOfAngles[listOfAngles.length-1] = Double.NaN;
@@ -149,20 +191,30 @@ public class Keyboard extends JPanel implements MouseInputListener
 		boolean isCorner = false;
 		for(int i = 0; i < listOfAngles.length; i++)
 		{
-			if(!isCorner)
+			if(!isCorner && sb.charAt(sb.length()-1) == chars.get(i).charValue())
 			{
-				if(listOfAngles[i] != 0.0 && listOfAngles[i] < THRESHOLD && listOfAngles[i] > -THRESHOLD)
+				if(listOfAngles[i] != 0.0 && (listOfAngles[i] < BIG_THRESHOLD && listOfAngles[i] > SMALL_THRESHOLD) ||  (listOfAngles[i] > -BIG_THRESHOLD && listOfAngles[i] < -SMALL_THRESHOLD))
 				{
 					System.out.println(listOfAngles[i]);
 					sb.append("_" + String.valueOf(chars.get(i)));
 					isCorner = true;
-					continue;
 				}
-			}
-			else if(sb.charAt(sb.length()-1) == chars.get(i).charValue())
-			{
 				continue;
 			}
+//			else if(!isCorner)
+//			{
+			else if(!isCorner && listOfAngles[i] != 0.0 && (listOfAngles[i] < BIG_THRESHOLD && listOfAngles[i] > SMALL_THRESHOLD) ||  (listOfAngles[i] > -BIG_THRESHOLD && listOfAngles[i] < -SMALL_THRESHOLD))
+			{
+				System.out.println(listOfAngles[i]);
+				sb.append(String.valueOf(chars.get(i)) + "_" + String.valueOf(chars.get(i)));
+				isCorner = true;
+				continue;
+			}
+//			}
+//			else if(sb.charAt(sb.length()-1) == chars.get(i).charValue())
+//			{
+//				continue;
+//			}
 			sb.append(String.valueOf(chars.get(i)));
 			
 			isCorner = false;
@@ -186,8 +238,9 @@ public class Keyboard extends JPanel implements MouseInputListener
 			isDragged = this.mouseDragged;
 		}
 		
-		if((this.mouseCoords.isEmpty() && isDragged) || !this.mouseCoords.get(this.mouseCoords.size()-1).equals(currMousePosition))
-		{
+		Coordinate lastCoor = this.mouseCoords.get(this.mouseCoords.size()-1);
+		if((this.mouseCoords.isEmpty() && isDragged) || (Math.abs(lastCoor.y-currMousePosition.y) > 4 && Math.abs(lastCoor.x - currMousePosition.x) > 4))
+		{/*!this.mouseCoords.get(this.mouseCoords.size()-1).equals(currMousePosition)*/
 //			if(this.mouseCoordX.isEmpty())
 //			{
 //				System.out.println("(" + currX + "," + currY + ")");
