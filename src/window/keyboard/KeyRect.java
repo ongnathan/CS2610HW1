@@ -17,16 +17,18 @@ public class KeyRect extends JPanel
 	
 	public static final int WIDTH = 40;
 	public static final int HEIGHT = 50;
-	public static final int BORDER_ZONE = 0;
+	public static final int BORDER_ZONE = 1;
 	
 	public static final int FONT_SIZE = 16;
 	public static final int FONT_BUFFER_WIDTH = 10;
 	public static final int FONT_BUFFER_HEIGHT = 15;
 	
-	private int leftX,topY;
+//	private int leftX,topY;
+	private final Coordinate location;
 	
 	public boolean isInDragged;
 	public boolean isIn;
+	public boolean isTyped;
 	
 	private final char keyChar;
 	
@@ -36,8 +38,12 @@ public class KeyRect extends JPanel
 	
 	public KeyRect(int leftX, int topY, char keyChar)
 	{
-		this.leftX = leftX;
-		this.topY = topY;
+		this(new Coordinate(leftX,topY), keyChar);
+	}
+	
+	public KeyRect(Coordinate location, char keyChar)
+	{
+		this.location = location;
 		this.keyChar = keyChar;
 		this.disp = String.valueOf(this.keyChar);
 		this.width = WIDTH;
@@ -52,6 +58,11 @@ public class KeyRect extends JPanel
 		return this.keyChar;
 	}
 	
+	public Coordinate getCoordinate()
+	{
+		return this.location;
+	}
+	
 	public boolean isInside(Coordinate c)
 	{
 		return this.isInside(c.x, c.y);
@@ -59,7 +70,7 @@ public class KeyRect extends JPanel
 	
 	public boolean isInside(int x, int y)
 	{
-		return x >= this.leftX && x <= this.leftX + this.width && y >= this.topY && y <= this.topY + this.height;
+		return x >= this.location.x && x <= this.location.x + this.width && y >= this.location.y && y <= this.location.y + this.height;
 	}
 	
 	public void paintComponent(Graphics g)
@@ -69,8 +80,12 @@ public class KeyRect extends JPanel
 		if(this.isInDragged)
 		{
 			g.setColor(Color.RED);
-			g.fillRect(leftX, topY, this.width, this.height);
-//			System.out.print(keyChar);
+			g.fillRect(this.location.x, this.location.y, this.width, this.height);
+		}
+		else if(this.isTyped)
+		{
+			g.setColor(Color.CYAN);
+			g.fillRect(this.location.x, this.location.y, this.width, this.height);
 		}
 		else if(this.isIn)
 		{
@@ -79,12 +94,11 @@ public class KeyRect extends JPanel
 		else
 		{
 			g.setColor(Color.BLACK);
-//			g.drawRect(leftX, topY, this.width, this.height);
 		}
-		g.drawRect(leftX, topY, this.width, this.height);
+		g.drawRect(this.location.x, this.location.y, this.width, this.height);
 		
 		g.setColor(Color.BLACK);
 		g.setFont(new Font("default", Font.BOLD, FONT_SIZE));
-		g.drawChars(this.disp.toCharArray(), 0, this.disp.length(), this.leftX+FONT_BUFFER_WIDTH, this.topY+FONT_BUFFER_HEIGHT);
+		g.drawChars(this.disp.toCharArray(), 0, this.disp.length(), this.location.x+FONT_BUFFER_WIDTH, this.location.y+FONT_BUFFER_HEIGHT);
 	}
 }

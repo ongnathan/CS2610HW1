@@ -10,6 +10,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
 import java.util.PriorityQueue;
 
 import javax.swing.BorderFactory;
@@ -18,7 +19,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 
+import window.keyboard.Keyboard;
 import backend.dictionary.AlphaNode;
 import backend.dictionary.Dictionary;
 
@@ -26,18 +30,16 @@ import backend.dictionary.Dictionary;
  * The main display window.
  * @author Nathan Ong and Jose Joseph
  */
-public class MainWindow
+public class MainWindow extends JPanel
 {
 	
-	private final JFrame mainFrame;							//The frame
-	private final JPanel mainPanel;							//The main panel
 	private final JPanel inputArea;							//The input area panel including the textbox and the suggestions buttons
 	
 	private final JTextArea sample;							//The sample text to display
 	private final JTextArea inputText;						//The input text
 	private final JPanel alternateSuggestionsPanel;			//The suggestions buttons panel
 	private final JButton[] alternateSuggestionsButtons;	//The suggestion buttons
-	private final JPanel keyboard; //TODO replace with actual keyboard
+	private final Keyboard keyboard;						//The keyboard
 	
 	private final TextFocusBorderListener tfbl;				//The focus listener for the text area and the keyboard
 	private final SuggestionButtonListener sbl;				//All of the button listeners
@@ -45,30 +47,33 @@ public class MainWindow
 	
 	private final Dictionary dictionary;					//The dictionary
 	
+	protected static final Border EMPTY_BORDER = BorderFactory.createEmptyBorder(20, 25, 20, 25);
+	
 	/**
 	 * The constructor.
 	 */
 	public MainWindow()
 	{
+		super(new BorderLayout());
 		//dictionary
 		this.dictionary = Dictionary.importFromTextFile("all.num");
 		
 		//main components
-		this.mainFrame = setUpFrame();
-		this.mainPanel = new JPanel(new BorderLayout(50,50));
-		this.inputArea = new JPanel(new GridLayout(2,1));
+//		this.mainPanel = new JPanel(new BorderLayout());
+		this.inputArea = new JPanel(new GridLayout(3,1));
 		
 		//sample panel
-		JPanel samplePanel = new JPanel();
+//		JPanel samplePanel = new JPanel();
 		this.sample = new JTextArea("A QUICK BROWN FOX JUMPS OVER THE LAZY DOG", 1, 34);
 		this.sample.setEditable(false);
-		samplePanel.add(this.sample);
-		samplePanel.setBorder(BorderFactory.createEmptyBorder(50, 65, 50, 65));
+//		samplePanel.add(this.sample);
+		this.sample.setBorder(BorderFactory.createCompoundBorder(EMPTY_BORDER, BorderFactory.createLineBorder(Color.BLUE)));
 		
 		//input text area
 		this.inputText = new JTextArea(1, 50);
 		this.inputText.setEditable(false);
 		this.inputText.setText("_"); //cursor
+		this.inputText.setBorder(BorderFactory.createCompoundBorder(EMPTY_BORDER, BorderFactory.createEtchedBorder(EtchedBorder.RAISED)));
 		
 		//suggestions panel
 		this.alternateSuggestionsPanel = new JPanel(new GridLayout(1,4));
@@ -80,15 +85,17 @@ public class MainWindow
 			this.alternateSuggestionsButtons[i].addActionListener(this.sbl);
 			this.alternateSuggestionsPanel.add(this.alternateSuggestionsButtons[i], i);
 		}
+		this.inputArea.add(this.sample);
 		this.inputArea.add(this.inputText);
 		this.inputArea.add(this.alternateSuggestionsPanel);
 		
 		//keyboard panel
-		this.keyboard = new JPanel();
-		this.keyboard.setBorder(BorderFactory.createEmptyBorder(50, 65, 50, 65));
+//		this.keyboard = new JPanel();
+		this.keyboard = new Keyboard(this);
+		this.keyboard.setBorder(EMPTY_BORDER);
 		
 		//keyboard listener
-		this.kl = new KeyboardListener(this);
+		this.kl = new KeyboardListener(this,this.keyboard);
 		this.keyboard.addKeyListener(this.kl);
 		this.inputArea.addKeyListener(this.kl);
 		this.inputText.addKeyListener(this.kl);
@@ -96,16 +103,17 @@ public class MainWindow
 		//focus listener
 		this.tfbl = new TextFocusBorderListener(this.inputText, this.keyboard);
 		this.inputText.addFocusListener(this.tfbl);
+		this.inputArea.addFocusListener(this.tfbl);
 		this.keyboard.addFocusListener(this.tfbl);
 		
 		//add all components to the main panel
-		this.mainPanel.add(samplePanel, BorderLayout.NORTH);
-		this.mainPanel.add(this.inputArea, BorderLayout.CENTER);
-		this.mainPanel.add(this.keyboard, BorderLayout.SOUTH);
-		this.mainPanel.add(new JPanel(), BorderLayout.EAST);
-		this.mainPanel.add(new JPanel(), BorderLayout.WEST);
+//		this.mainPanel.add(samplePanel, BorderLayout.NORTH);
+		this.add(this.inputArea, BorderLayout.NORTH);
+		this.add(this.keyboard, BorderLayout.CENTER);
+//		this.mainPanel.add(new JPanel(), BorderLayout.EAST);
+//		this.mainPanel.add(new JPanel(), BorderLayout.WEST);
 		
-		this.mainFrame.add(this.mainPanel);
+//		this.add(this.mainPanel);
 //		this.mainFrame.setVisible(true);
 	}//end constructor()
 	
@@ -117,6 +125,7 @@ public class MainWindow
 		for(int i = 0; i < this.alternateSuggestionsButtons.length; i++)
 		{
 			this.alternateSuggestionsButtons[i].setText(null);
+			this.alternateSuggestionsButtons[i].setToolTipText(null);
 		}
 	}
 	
@@ -127,6 +136,20 @@ public class MainWindow
 	 */
 	public void getWordFromSwipes(String potentialKeys)
 	{
+		String currentInputText = this.inputText.getText();
+		if(potentialKeys.length() == 3)
+		{
+			if(currentInputText.length() > 1 && currentInputText.charAt(currentInputText.length()-2) == ' ')
+			{
+				this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + String.valueOf(potentialKeys.charAt(1)) + "_");
+			}
+			else
+			{
+				this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + " " + String.valueOf(potentialKeys.charAt(1)) + "_");
+			}
+			return;
+		}
+		
 		//Check if there are any words
 		PriorityQueue<AlphaNode> queue = this.dictionary.getPotentialWords(potentialKeys);
 		if(queue.isEmpty())
@@ -185,7 +208,6 @@ public class MainWindow
 		}
 		this.inputText.setText(currText.substring(0,currText.length()-1) + "_");
 		
-		
 		this.clearSuggestionButtons();
 	}
 	
@@ -221,25 +243,17 @@ public class MainWindow
 	}
 	
 	/**
-	 * Sets up the frame.
-	 * @return Returns the set up JFrame.
+	 * Shows the frame.
 	 */
-	private static final JFrame setUpFrame()
+	public static void showGUI(MainWindow mw)
 	{
 		//TODO change title
 		JFrame frame = new JFrame("TITLE");
-		frame.setSize(new Dimension(500, 500));
-		frame.setResizable(false);
+		frame.setMinimumSize(new Dimension(510, 500));
+		frame.setResizable(true);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		return frame;
-	}
-	
-	/**
-	 * Shows the frame.
-	 */
-	public void showGUI()
-	{
-		this.mainFrame.setVisible(true);
+		frame.add(mw);
+		frame.setVisible(true);
 	}
 	
 	/**
@@ -252,7 +266,7 @@ public class MainWindow
 			public void run()
 			{
 				MainWindow mw = new MainWindow();
-				mw.showGUI();
+				showGUI(mw);
 				mw.getWordFromSwipes("_WA_ASDRT_TRE_ER_");
 				mw.getWordFromSwipes("_IUYTFDS_");
 				mw.getWordFromSwipes("_GHJUIO_OIUHGFD_");
@@ -290,24 +304,24 @@ class SuggestionButtonListener implements ActionListener
 class KeyboardListener implements KeyListener
 {
 	private final MainWindow mw;
+	private final Keyboard k;
 	
-	public KeyboardListener(MainWindow mw)
+	public KeyboardListener(MainWindow mw, Keyboard k)
 	{
 		this.mw = mw;
+		this.k = k;
 	}
 
+	//TODO FIGURE OUT HOW TO SIMULATE CLICK
 	@Override
 	public void keyTyped(KeyEvent e)
 	{
-		char c = e.getKeyChar();
+		char c = Character.toUpperCase(e.getKeyChar());
 		if(Character.isAlphabetic(c) || c == ' ')
 		{
 			this.mw.addText(c);
+			this.k.simulateKeyPress(c);
 		}
-//		else
-//		{
-//			System.out.println(e.getKeyCode());
-//		}
 	}
 
 	@Override
@@ -347,14 +361,14 @@ class TextFocusBorderListener implements FocusListener
 	@Override
 	public void focusGained(FocusEvent e)
 	{
-		this.jta.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		this.keyboard.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(50, 65, 50, 65), BorderFactory.createLineBorder(Color.BLACK)));
+		this.jta.setBorder(BorderFactory.createCompoundBorder(MainWindow.EMPTY_BORDER, BorderFactory.createLineBorder(Color.BLACK)));
+		this.keyboard.setBorder(BorderFactory.createCompoundBorder(MainWindow.EMPTY_BORDER, BorderFactory.createLineBorder(Color.BLACK)));
 	}
 
 	@Override
 	public void focusLost(FocusEvent e)
 	{
-		this.jta.setBorder(BorderFactory.createEmptyBorder());
-		this.keyboard.setBorder(BorderFactory.createEmptyBorder(50, 65, 50, 65));
+		this.jta.setBorder(BorderFactory.createCompoundBorder(MainWindow.EMPTY_BORDER, BorderFactory.createEtchedBorder(EtchedBorder.RAISED)));
+		this.keyboard.setBorder(MainWindow.EMPTY_BORDER);
 	}
 }

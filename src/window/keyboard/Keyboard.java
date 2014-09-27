@@ -1,6 +1,7 @@
 package window.keyboard;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -13,20 +14,21 @@ import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
 import window.Coordinate;
+import window.MainWindow;
 import backend.dictionary.Dictionary;
 
 public class Keyboard extends JPanel implements MouseInputListener
 {
-	private static final int ROW_ONE_LOC = 15;
+	private static final int ROW_ONE_LOC = 50;
 	private static final int ROW_TWO_LOC = ROW_ONE_LOC + KeyRect.HEIGHT + KeyRect.BORDER_ZONE;
 	private static final int ROW_THREE_LOC = ROW_TWO_LOC + KeyRect.HEIGHT + KeyRect.BORDER_ZONE;
 	private static final int ROW_FOUR_LOC = ROW_THREE_LOC + KeyRect.HEIGHT + KeyRect.BORDER_ZONE;
 	private static final int TAIL_LENGTH = 100;
 	
-	private static final int ROW_ONE_COL_ONE_LOC = 10;
-	private static final int ROW_TWO_COL_ONE_LOC = 20;
-	private static final int ROW_THREE_COL_ONE_LOC = 40;
-	private static final int ROW_FOUR_COL_ONE_LOC = 40;
+	private static final int ROW_ONE_COL_ONE_LOC = 50;
+	private static final int ROW_TWO_COL_ONE_LOC = ROW_ONE_COL_ONE_LOC+10;
+	private static final int ROW_THREE_COL_ONE_LOC = ROW_TWO_COL_ONE_LOC+20;
+	private static final int ROW_FOUR_COL_ONE_LOC = ROW_THREE_COL_ONE_LOC;
 	
 	private static final char CHARACTER_KEY_ARRAY[] = {'Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M',' '};
 	
@@ -51,13 +53,15 @@ public class Keyboard extends JPanel implements MouseInputListener
 	private volatile Coordinate currentPos;
 	
 	protected volatile boolean mouseDragged;
+	
+	private final MainWindow parent;
 
-	public Keyboard()
+	public Keyboard(MainWindow parent)
 	{
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		
-		this.currentPos = null;
+		this.currentPos = new Coordinate(0,0);
 		
 		this.mouseCoords = new ArrayList<Coordinate>();
 		this.mouseChars = new ArrayList<Character>();
@@ -87,6 +91,10 @@ public class Keyboard extends JPanel implements MouseInputListener
 		this.timer.schedule(this.mouseCheck, PERIOD, PERIOD);
 		
 		this.mouseDragged = false;
+		
+		this.setPreferredSize(new Dimension(ROW_ONE_COL_ONE_LOC+NUM_KEYS_ROW_ONE*KeyRect.WIDTH+NUM_KEYS_ROW_ONE*KeyRect.BORDER_ZONE, 4*KeyRect.HEIGHT+4*KeyRect.BORDER_ZONE));
+		
+		this.parent = parent;
 	}
 	
 	//TODO HANDLE SPACE
@@ -106,7 +114,11 @@ public class Keyboard extends JPanel implements MouseInputListener
 		}
 		if(i >= chars.size()-1)
 		{
-			sb.append(String.valueOf(chars.get(chars.size()-1)) + String.valueOf('_'));
+			if(sb.charAt(sb.length()-1) != chars.get(chars.size()-1))
+			{
+				sb.append(String.valueOf(chars.get(chars.size()-1)));
+			}
+			sb.append(String.valueOf(String.valueOf('_')));
 			return sb.toString();
 		}
 		
@@ -163,6 +175,10 @@ public class Keyboard extends JPanel implements MouseInputListener
 			sb.append(String.valueOf(chars.get(chars.size()-1)));
 		}
 		sb.append(Dictionary.DELIMITER);
+		if(sb.length() > 3 && sb.charAt(sb.length()-2) == sb.charAt(sb.length()-4))
+		{
+			return sb.substring(0, sb.length()-2);
+		}
 		return sb.toString();
 	}
 	
@@ -187,8 +203,42 @@ public class Keyboard extends JPanel implements MouseInputListener
 			}
 		}
 		
+//		repaint();
+	}
+	
+//	public Coordinate getTopLeftOfKey(char c)
+//	{
+//		for(int i = 0; i < this.keyRectArray.length; i++)
+//		{
+//			if(keyRectArray[i].getKeyChar() == c)
+//			{
+//				return keyRectArray[i].getCoordinate();
+//			}
+//		}
+//		return null;
+//	}
+	
+	public void simulateKeyPress(char c)
+	{
+		for(int i = 0; i < this.keyRectArray.length; i++)
+		{
+			if(keyRectArray[i].getKeyChar() == c)
+			{
+				keyRectArray[i].isTyped = true;
+				continue;
+			}
+			keyRectArray[i].isTyped = false;
+		}
 		repaint();
 	}
+	
+//	public void simulateKeyRelease(char c)
+//	{
+//		for(int i = 0; i < this.keyRectArray.length; i++)
+//		{
+//			keyRectArray[i].isTyped = false;
+//		}
+//	}
 	
 	public void paintComponent(Graphics g)
 	{
@@ -284,8 +334,8 @@ public class Keyboard extends JPanel implements MouseInputListener
 					this.mouseChars.add(this.keyRectArray[i].getKeyChar());
 					this.mouseCoords.add(new Coordinate(e.getX(), e.getY()));
 				}
-				break;
 			}
+			this.keyRectArray[i].isTyped = false;
 		}
 		synchronized(this)
 		{
@@ -311,7 +361,9 @@ public class Keyboard extends JPanel implements MouseInputListener
 					this.mouseCoords.add(new Coordinate(e.getX(), e.getY()));
 				}
 				//TODO do something with the generated formatted string
-				System.out.println(this.generateFormattedString());
+				String formattedString = this.generateFormattedString();
+				System.out.println(formattedString);
+				this.parent.getWordFromSwipes(formattedString);
 			}
 			else
 			{
@@ -333,24 +385,26 @@ public class Keyboard extends JPanel implements MouseInputListener
 	@Override
 	public void mouseEntered(MouseEvent e)
 	{
-//		this.requestFocusInWindow(); //MAYBE?
+		this.requestFocusInWindow(); //MAYBE?
+		repaint();
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e)
 	{
+		repaint();
 		//empty
 	}
 	
 	public static void main(String args[])
 	{
-		Keyboard object = new Keyboard();
-		
-		JFrame frame = new JFrame("Test");
-		frame.add(object);
-		frame.setVisible(true);
-		frame.setSize(800,600);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
+//		Keyboard object = new Keyboard();
+//		
+//		JFrame frame = new JFrame("Test");
+//		frame.add(object);
+//		frame.setVisible(true);
+//		frame.setSize(450,300);
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
 	}
 }
 
