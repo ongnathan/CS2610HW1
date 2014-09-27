@@ -1,4 +1,4 @@
-package window;
+package window.keyboard;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
+import window.Coordinate;
 import backend.dictionary.Dictionary;
 
 public class Keyboard extends JPanel implements MouseInputListener
@@ -31,33 +32,23 @@ public class Keyboard extends JPanel implements MouseInputListener
 	
 	private static final int NUM_KEYS_ROW_ONE = 10;
 	private static final int NUM_KEYS_ROW_TWO = 9;
-	private static final int NUM_KEYS_ROW_THREE = 7;
-	private static final int NUM_KEYS_ROW_FOUR = CHARACTER_KEY_ARRAY.length - NUM_KEYS_ROW_ONE - NUM_KEYS_ROW_TWO - NUM_KEYS_ROW_THREE;
+//	private static final int NUM_KEYS_ROW_THREE = 7;
+//	private static final int NUM_KEYS_ROW_FOUR = CHARACTER_KEY_ARRAY.length - NUM_KEYS_ROW_ONE - NUM_KEYS_ROW_TWO - NUM_KEYS_ROW_THREE;
 	
 	private static final int PERIOD = 20;
 	
 	private static final double BIG_THRESHOLD = 130.0;
-	private static final double SMALL_THRESHOLD = 10.0;
+//	private static final double SMALL_THRESHOLD = 10.0;
 	
-//	private static final int xs[] = {10,35,60,85,110,135,160,185,210,235,20,45,70,95,120,145,170,195,220,40,65,90,115,140,165,190,40};
-//	private char strlst[] = new char[100];
-//	private String comboString;
-	 
-//	private final ArrayList<Integer> mouseCoordX;	//All X coords
-//	private final ArrayList<Integer> mouseCoordY;	//All Y coords
 	private final ArrayList<Coordinate> mouseCoords;
 	private final ArrayList<Character> mouseChars;
-//	private final ArrayList<Double> listOfAngles;	//All angles, 0 --> 0, 1, 2
 	
 	private final Timer timer;
 	private final TimerTask mouseCheck;
 	
 	private final KeyRect keyRectArray[];
-//	private int pos = 0;
 	
-//	private volatile int currMouseX,currMouseY;
 	private volatile Coordinate currentPos;
-//	private int ox,oy;
 	
 	protected volatile boolean mouseDragged;
 
@@ -68,11 +59,8 @@ public class Keyboard extends JPanel implements MouseInputListener
 		
 		this.currentPos = null;
 		
-//		this.mouseCoordX = new ArrayList<Integer>();
-//		this.mouseCoordY = new ArrayList<Integer>();
 		this.mouseCoords = new ArrayList<Coordinate>();
 		this.mouseChars = new ArrayList<Character>();
-//		this.listOfAngles = new ArrayList<Double>();
 		
 		this.keyRectArray = new KeyRect[CHARACTER_KEY_ARRAY.length];
 		
@@ -98,102 +86,17 @@ public class Keyboard extends JPanel implements MouseInputListener
 		this.mouseCheck = new MouseCheck(this);
 		this.timer.schedule(this.mouseCheck, PERIOD, PERIOD);
 		
-//		this.comboString = "";
-		
 		this.mouseDragged = false;
 	}
 	
+	//TODO HANDLE SPACE
 	private String generateFormattedString()
 	{
-		List<Character> chars = null;
-		synchronized(this.mouseChars)
-		{
-			chars = new ArrayList<Character>(this.mouseChars);
-		}
-		
-		//CALCULATE ANGLES
-//		if(chars.size() <= 2)
-//		{
-//			if(chars.isEmpty())
-//			{
-//				return "";
-//			}
-//			else if (chars.size() == 1 || chars.get(0) == chars.get(1))
-//			{
-//				return String.valueOf(chars.get(0));
-//			}
-//			return String.valueOf(chars.get(0)) + String.valueOf(chars.get(1));
-//		}
-		
-//		final double[] listOfAngles = new double[chars.size()];
-//		listOfAngles[0] = Double.NaN;
-//		for(int i = 1; i < listOfAngles.length-2; i++)
-//		{
-//			Coordinate after = this.mouseCoords.get(i+1);
-//			Coordinate middle = this.mouseCoords.get(i);
-//			Coordinate before = this.mouseCoords.get(i-1);
-//			//FIXME need to change how to compute this since the x/y coordinates are different.
-//			listOfAngles[i] = Coordinate.getAngle(before, middle, after);
-////			double angle1 = Math.atan2(((double)after.y - middle.y), ((double)after.x - middle.x));
-////			double angle2 = Math.atan2(((double)middle.y - before.y), ((double)middle.x - before.x));
-//////			double angle1 = 0.0;
-//////			double angle2 = 0.0;
-//////			if(after.x - middle.x == 0)
-//////			{
-//////				if(after.y - middle.y > 0)
-//////				{
-//////					angle1 = Math.PI/2;
-//////				}
-//////				else if(after.y - middle.y < 0)
-//////				{
-//////					angle1 = -Math.PI/2;
-//////				}
-//////			}
-//////			else
-//////			{
-//////				angle1 = Math.atan((after.y-middle.y)/(after.x-middle.x));
-//////			}
-//////			
-//////			if(middle.x - before.x == 0)
-//////			{
-//////				if(middle.y - before.y > 0)
-//////				{
-//////					angle2 = Math.PI/2;
-//////				}
-//////				else if(middle.y - before.y < 0)
-//////				{
-//////					angle2 = -Math.PI/2;
-//////				}
-//////			}
-//////			else
-//////			{
-//////				angle2 = Math.atan((middle.y-before.y)/(middle.x-before.x));
-//////			}
-//////			
-////////			double angle1 = Math.atan((after.y-middle.y)/(after.x-middle.x));
-////////			double angle2 = Math.atan((middle.y-before.y)/(middle.x-before.x));
-////			System.out.println("(" + middle.x + "," + middle.y + ") => (" + after.x + "," + after.y + ") ==> " + Math.toDegrees(angle1));
-////			System.out.println("(" + before.x + "," + before.y + ") => (" + middle.x + "," + middle.y + ") ==> " + Math.toDegrees(angle2));
-////			double realAngle = angle1 - angle2;
-////			System.out.println("Total angle = " + Math.toDegrees(realAngle));
-////			System.out.println("----------");
-////			listOfAngles[i] = Math.toDegrees(realAngle);
-//			
-////			double angle1 = 
-////			
-////			listOfAngles[i]
-////			System.out.println("The total is "+Math.toDegrees(total));
-//		}
-//		listOfAngles[listOfAngles.length-1] = Double.NaN;
-		
-		//FIXME DO SOMETHING
+		List<Character> chars = new ArrayList<Character>(this.mouseChars);
 		
 		StringBuilder sb = new StringBuilder(Dictionary.DELIMITER + String.valueOf(chars.get(0)));
-//		for(int i = 0; i < chars.size(); i++)
-//		{
-//			sb.append(chars.get(i));
-//		}
 		
+		//retrieve three valid coordinates to check for angles
 		int i = 0;
 		Coordinate prevCoord = this.mouseCoords.get(0);
 		Coordinate thisCoord = this.mouseCoords.get(1);
@@ -253,37 +156,6 @@ public class Keyboard extends JPanel implements MouseInputListener
 			prevCoord = thisCoord;
 			thisCoord = nextCoord;
 			isCorner = false;
-			
-//			if(lastCoord == null || (Math.abs(thisCoord.y-lastCoord.y) > 5 && Math.abs(thisCoord.x - lastCoord.x) > 5))
-//			{
-//				if(isCorner && sb.charAt(sb.length()-1) == chars.get(i).charValue())
-//				{
-////					if(listOfAngles[i] != 0.0 && ((listOfAngles[i] < BIG_THRESHOLD && listOfAngles[i] > SMALL_THRESHOLD) ||  (listOfAngles[i] > -BIG_THRESHOLD && listOfAngles[i] < -SMALL_THRESHOLD)))
-////					{
-////						System.out.println(listOfAngles[i]);
-////						sb.append("_" + String.valueOf(chars.get(i)));
-////						isCorner = true;
-////					}
-//					continue;
-//				}
-//				else if(listOfAngles[i] != 0.0 && (listOfAngles[i] < BIG_THRESHOLD && listOfAngles[i] > SMALL_THRESHOLD) ||  (listOfAngles[i] > -BIG_THRESHOLD && listOfAngles[i] < -SMALL_THRESHOLD))
-//				{
-//					System.out.println(listOfAngles[i]);
-//					sb.append(String.valueOf(chars.get(i)) + "_" + String.valueOf(chars.get(i)));
-//					isCorner = true;
-//					continue;
-//				}
-//				
-//				sb.append(String.valueOf(chars.get(i)));
-//				
-//				lastCoord = thisCoord;
-//				
-//				isCorner = false;
-//			}
-//			else
-//			{
-//				continue;
-//			}
 		}
 		
 		if(sb.charAt(sb.length()-1) != chars.get(chars.size()-1))
@@ -296,28 +168,11 @@ public class Keyboard extends JPanel implements MouseInputListener
 	
 	protected void addMouseCoordinates()
 	{
-//		int currX = -1;
-//		int currY = -1;
-		Coordinate currMousePosition = null;
-		boolean isDragged = false;
+		Coordinate currMousePosition = this.currentPos;
+		boolean isDragged = this.mouseDragged;
 		
-		synchronized(this)
-		{
-//			currX = this.currMouseX;
-//			currY = this.currMouseY;
-			currMousePosition = this.currentPos;
-			isDragged = this.mouseDragged;
-		}
-		
-		Coordinate lastCoor = this.mouseCoords.get(this.mouseCoords.size()-1);
 		if((this.mouseCoords.isEmpty() && isDragged) || !this.mouseCoords.get(this.mouseCoords.size()-1).equals(currMousePosition))
 		{
-//			if(this.mouseCoordX.isEmpty())
-//			{
-//				System.out.println("(" + currX + "," + currY + ")");
-//			}
-			
-//			boolean found = false;
 			for(int i = 0; i < this.keyRectArray.length; i++)
 			{
 				if(this.keyRectArray[i].isInside(currMousePosition))
@@ -325,23 +180,11 @@ public class Keyboard extends JPanel implements MouseInputListener
 					synchronized(this)
 					{
 						this.mouseChars.add(this.keyRectArray[i].getKeyChar());
-//						this.mouseCoordX.add(currX);
-//						this.mouseCoordY.add(currY);
 						this.mouseCoords.add(currMousePosition);
 					}
-//					found = true;
 					break;
 				}
 			}
-//			if(!found)
-//			{
-//				synchronized(this)
-//				{
-//					this.mouseChars.add('\0');
-//					this.mouseCoordX.add(currX);
-//					this.mouseCoordY.add(currY);
-//				}
-//			}
 		}
 		
 		repaint();
@@ -355,22 +198,13 @@ public class Keyboard extends JPanel implements MouseInputListener
 			keyRectArray[i].paintComponent(g);
 		}
 		
-//		ArrayList<Integer> coordX = null;
-//		ArrayList<Integer> coordY = null;
-		ArrayList<Coordinate> mouseCoordinatesPath = null;
-		synchronized(this)
-		{
-//			coordX = new ArrayList<Integer>(this.mouseCoordX);
-//			coordY = new ArrayList<Integer>(this.mouseCoordY);
-			mouseCoordinatesPath = new ArrayList<Coordinate>(this.mouseCoords);
-		}
+		ArrayList<Coordinate> mouseCoordinatesPath = new ArrayList<Coordinate>(this.mouseCoords);
 		
 		g.setColor(Color.BLUE);
 		if(mouseCoordinatesPath.size() > 1)
 		{
 			for(int i = mouseCoordinatesPath.size()-1; i > mouseCoordinatesPath.size() - TAIL_LENGTH && i > 0; i--)
 			{
-//				System.out.println(i);
 				Coordinate before = mouseCoordinatesPath.get(i-1);
 				Coordinate now = mouseCoordinatesPath.get(i);
 				g.drawLine(before.x,before.y,now.x,now.y);
@@ -381,10 +215,8 @@ public class Keyboard extends JPanel implements MouseInputListener
 	@Override
 	public void mouseDragged(MouseEvent e)
 	{
-		synchronized(this)
+		synchronized(this.currentPos)
 		{
-//			this.currMouseX = e.getX();
-//			this.currMouseY = e.getY();
 			this.currentPos = new Coordinate(e.getX(), e.getY());
 		}
 		
@@ -394,11 +226,6 @@ public class Keyboard extends JPanel implements MouseInputListener
 			{
 				this.keyRectArray[i].isInDragged = true;
 				this.keyRectArray[i].isIn = true;
-//				if(this.comboString.isEmpty() || this.comboString.charAt(this.comboString.length()-1) != this.keyRectArray[i].getKeyChar())
-//				{
-//					this.comboString += this.keyRectArray[i].getKeyChar();
-//				}
-//				this.mouseChars.add(this.keyRectArray[i].getKeyChar());
 			}
 			else
 			{
@@ -415,10 +242,8 @@ public class Keyboard extends JPanel implements MouseInputListener
 	@Override
 	public void mouseMoved(MouseEvent e)
 	{
-		synchronized(this)
+		synchronized(this.currentPos)
 		{
-//			this.currMouseX = e.getX();
-//			this.currMouseY = e.getY();
 			this.currentPos = new Coordinate(e.getX(), e.getY());
 		}
 		
@@ -454,25 +279,13 @@ public class Keyboard extends JPanel implements MouseInputListener
 			{
 				this.keyRectArray[i].isInDragged = true;
 				this.keyRectArray[i].isIn = true;
-//				if(this.comboString.isEmpty() || this.comboString.charAt(this.comboString.length()-1) != this.keyRectArray[i].getKeyChar())
-//				{
-//					this.comboString += this.keyRectArray[i].getKeyChar();
-//				}
-//				this.listOfAngles.add(Double.NaN);
 				synchronized(this)
 				{
 					this.mouseChars.add(this.keyRectArray[i].getKeyChar());
-//					this.mouseCoordX.add(e.getX());
-//					this.mouseCoordY.add(e.getY());
 					this.mouseCoords.add(new Coordinate(e.getX(), e.getY()));
 				}
 				break;
 			}
-//			else
-//			{
-//				this.keyRectArray[i].isInDragged = false;
-//				this.keyRectArray[i].isIn = false;
-//			}
 		}
 		synchronized(this)
 		{
@@ -492,28 +305,12 @@ public class Keyboard extends JPanel implements MouseInputListener
 			if(this.keyRectArray[i].isInside(e.getX(), e.getY()))
 			{
 				this.keyRectArray[i].isIn = true;
-//				if(this.comboString.isEmpty() || this.comboString.charAt(this.comboString.length()-1) != this.keyRectArray[i].getKeyChar())
-//				{
-//					this.comboString += this.keyRectArray[i].getKeyChar();
-//				}
 				synchronized(this)
 				{
 					this.mouseChars.add(this.keyRectArray[i].getKeyChar());
-//					this.mouseCoordX.add(e.getX());
-//					this.mouseCoordY.add(e.getY());
 					this.mouseCoords.add(new Coordinate(e.getX(), e.getY()));
 				}
-				
-//				//add second to last angle
-//				double temp1 = Math.atan2((this.mouseCoordY.get(this.mouseCoordY.size()-1) - this.mouseCoordY.get(this.mouseCoordY.size()-2)), (this.mouseCoordX.get(this.mouseCoordX.size()-1) - this.mouseCoordX.get(this.mouseCoordX.size()-2)));
-//				double temp2 = Math.atan2((this.mouseCoordY.get(this.mouseCoordY.size()-2) - this.mouseCoordY.get(this.mouseCoordY.size()-3)), (this.mouseCoordX.get(this.mouseCoordX.size()-2) - this.mouseCoordX.get(this.mouseCoordX.size()-3)));
-//				double total = temp1 - temp2;
-//				this.listOfAngles.add(Math.toDegrees(total));
-//				
-//				//add last angle
-//				this.listOfAngles.add(Double.NaN);
-				
-//				System.out.println(this.comboString);
+				//TODO do something with the generated formatted string
 				System.out.println(this.generateFormattedString());
 			}
 			else
@@ -522,16 +319,10 @@ public class Keyboard extends JPanel implements MouseInputListener
 			}
 		}
 		
-//		this.mouseCoordX.clear();
-//		this.mouseCoordY.clear();
-		this.mouseCoords.clear();
-//		this.listOfAngles.clear();
-		this.mouseChars.clear();
-		
-//		this.comboString = "";
-		
 		synchronized(this)
 		{
+			this.mouseCoords.clear();
+			this.mouseChars.clear();
 			this.mouseDragged = false;
 		}
 		
@@ -562,8 +353,6 @@ public class Keyboard extends JPanel implements MouseInputListener
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
 	}
 }
-
-//class 
 
 class MouseCheck extends TimerTask
 {

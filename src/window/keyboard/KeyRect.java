@@ -1,4 +1,4 @@
-package window;
+package window.keyboard;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -6,8 +6,15 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
+import window.Coordinate;
+
 public class KeyRect extends JPanel
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -180781374082638096L;
+	
 	public static final int WIDTH = 40;
 	public static final int HEIGHT = 50;
 	public static final int BORDER_ZONE = 0;

@@ -1,7 +1,12 @@
-package window;
+package window.keyboard;
 
 public class SpaceBarKeyRect extends KeyRect
 {	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5137064534634739370L;
+
 	public SpaceBarKeyRect(int leftX, int topY)
 	{
 		super(leftX, topY, ' ');
