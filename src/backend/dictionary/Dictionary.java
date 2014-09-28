@@ -85,12 +85,19 @@ public class Dictionary
 	 * @param letterGroups The swiped String.
 	 * @return Returns a PriorityQueue with all the words that satisfy the swiped String in highest-frequency first ordering.
 	 */
+	//FIXME does not work for clicking spacebar
 	public PriorityQueue<AlphaNode> getPotentialWords(String letterGroups)
 	{
 		//Delimiter usage checking
 		if(!letterGroups.contains("" + DELIMITER))
 		{
 			throw new IllegalArgumentException("Please use the " + DELIMITER + " as a delimiter");
+		}
+		if(letterGroups.contains(" "))
+		{
+			PriorityQueue<AlphaNode> spaceQueue = new PriorityQueue<AlphaNode>();
+			spaceQueue.add(new AlphaNode(' ', this.root));
+			return spaceQueue;
 		}
 		
 		//prep the data for analysis
@@ -325,14 +332,14 @@ public class Dictionary
 				
 				//first element is frequency, second element is the word
 				String[] split = line.split(" ");
-				split[1] = split[1].toUpperCase();
+				split[0] = split[0].toUpperCase();
 				
 				//if there are non-alphabetic characters, ignore them.
-				if(split[1].matches("[A-Z]+"))
+				if(split[0].matches("[A-Z]+"))
 				{
 //					System.out.println(split[1]);
 					//otherwise add them to the dictionary
-					if(!d.addWord(split[1], Double.parseDouble(split[0])))
+					if(!d.addWord(split[0], Double.parseDouble(split[4])))
 					{
 						reader.close();
 						throw new IllegalStateException("PROBLEM HERE");
@@ -366,7 +373,7 @@ public class Dictionary
 	 */
 	public static void main(String[] args)
 	{
-		Dictionary d = Dictionary.importFromTextFile("all.num"); //http://www.kilgarriff.co.uk/bnc-readme.html#raw
+		Dictionary d = Dictionary.importFromTextFile("word_freq.txt"); //http://www.kilgarriff.co.uk/bnc-readme.html#raw
 //		d.addWord("WATER", 15);
 //		d.addWord("WAITER", 5);
 //		d.addWord("WATTER", 10);

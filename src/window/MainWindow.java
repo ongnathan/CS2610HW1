@@ -59,7 +59,7 @@ public class MainWindow extends JPanel
 	{
 		super(new BorderLayout());
 		//dictionary
-		this.dictionary = Dictionary.importFromTextFile("all.num");
+		this.dictionary = Dictionary.importFromTextFile("word_freq.txt");
 		this.wasSwiped = false;
 		
 		//main components
@@ -282,7 +282,7 @@ public class MainWindow extends JPanel
 	public static void showGUI(MainWindow mw)
 	{
 		//TODO change title
-		JFrame frame = new JFrame("TITLE");
+		JFrame frame = new JFrame("MEWSIK");
 		frame.setMinimumSize(new Dimension(510, 500));
 		frame.setResizable(true);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
