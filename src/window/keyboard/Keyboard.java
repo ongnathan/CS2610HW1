@@ -37,9 +37,9 @@ public class Keyboard extends JPanel implements MouseInputListener
 //	private static final int NUM_KEYS_ROW_THREE = 7;
 //	private static final int NUM_KEYS_ROW_FOUR = CHARACTER_KEY_ARRAY.length - NUM_KEYS_ROW_ONE - NUM_KEYS_ROW_TWO - NUM_KEYS_ROW_THREE;
 	
-	private static final int PERIOD = 20;
+	private static final int PERIOD = 10;
 	
-	private static final double BIG_THRESHOLD = 130.0;
+	private static final double BIG_THRESHOLD = 150.0;
 //	private static final double SMALL_THRESHOLD = 10.0;
 	
 	private final ArrayList<Coordinate> mouseCoords;
@@ -102,7 +102,7 @@ public class Keyboard extends JPanel implements MouseInputListener
 	{
 		List<Character> chars = new ArrayList<Character>(this.mouseChars);
 		
-		StringBuilder sb = new StringBuilder(Dictionary.DELIMITER + String.valueOf(chars.get(0)));
+		StringBuilder sb = new StringBuilder("" + Dictionary.DELIMITER + String.valueOf(chars.get(0)));
 		
 		//retrieve three valid coordinates to check for angles
 		int i = 0;
@@ -122,12 +122,13 @@ public class Keyboard extends JPanel implements MouseInputListener
 			return sb.toString();
 		}
 		
-		boolean isCorner = false;
-		out: for(; i < chars.size()-1; i++)
+		boolean isCorner = true;
+		char thisChar = chars.get(i);
+		out: for(i = i+1; i < chars.size()-1; i++)
 		{
-			char thisChar = chars.get(i);
-			Coordinate nextCoord = this.mouseCoords.get(i+1);
-			do
+//			char thisChar = chars.get(i);
+			Coordinate nextCoord = this.mouseCoords.get(i);
+			while(Coordinate.tooClose(thisCoord, nextCoord))
 			{
 				i++;
 				if(i >= chars.size() - 1)
@@ -135,47 +136,63 @@ public class Keyboard extends JPanel implements MouseInputListener
 					break out;
 				}
 				nextCoord = this.mouseCoords.get(i);
-			}while(Coordinate.tooClose(thisCoord, nextCoord));
+			}
+			
+			char nextChar = chars.get(i);
+			
+			if(isCorner && sb.charAt(sb.length()-1) == thisChar)
+			{
+				prevCoord = thisCoord;
+				thisCoord = nextCoord;
+				thisChar = nextChar;
+				continue;
+			}
+			
+			isCorner = false;
 			
 			//CHECK CORNER
-			if(!isCorner)
-			{
+//			if(!isCorner)
+//			{
 				double angle = Coordinate.getAngle(prevCoord, thisCoord, nextCoord);
 //				if((angle < BIG_THRESHOLD && angle > SMALL_THRESHOLD) || (angle > -BIG_THRESHOLD && angle < -SMALL_THRESHOLD))
 				if(angle < BIG_THRESHOLD && angle > -BIG_THRESHOLD)
 				{
-					if(String.valueOf(sb.charAt(sb.length()-2)) != Dictionary.DELIMITER)
+					System.out.println(thisChar);
+					if(sb.charAt(sb.length()-2) != Dictionary.DELIMITER)
 					{
 						if(sb.charAt(sb.length()-1) != thisChar)
 						{
-							sb.append(String.valueOf(thisChar));
+							sb.append("" + thisChar);
 						}
-						sb.append(Dictionary.DELIMITER + String.valueOf(thisChar));
+						sb.append("" + Dictionary.DELIMITER + thisChar);
 					}
+//					System.out.println(sb.toString());
 					prevCoord = thisCoord;
 					thisCoord = nextCoord;
+					thisChar = nextChar;
 					isCorner = true;
 					continue;
 				}
-			}
+//			}
 			
 			//CHECK SAME CHARACTER
 			if(sb.charAt(sb.length()-1) != thisChar)
 			{
 				sb.append(String.valueOf(thisChar));
+//				isCorner = true;
 			}
 			
 			prevCoord = thisCoord;
 			thisCoord = nextCoord;
-			isCorner = false;
+			thisChar = nextChar;
 		}
 		
 		if(sb.charAt(sb.length()-1) != chars.get(chars.size()-1))
 		{
 			sb.append(String.valueOf(chars.get(chars.size()-1)));
 		}
-		sb.append(Dictionary.DELIMITER);
-		if(sb.length() > 3 && sb.charAt(sb.length()-2) == sb.charAt(sb.length()-4))
+		sb.append(""+Dictionary.DELIMITER);
+		if(sb.length() > 3 && sb.charAt(sb.length()-2) == sb.charAt(sb.length()-4) && sb.charAt(sb.length()-3) == Dictionary.DELIMITER)
 		{
 			return sb.substring(0, sb.length()-2);
 		}

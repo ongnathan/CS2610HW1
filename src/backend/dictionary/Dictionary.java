@@ -23,7 +23,7 @@ public class Dictionary
 	/**
 	 * The delimiter that should be used whenever a swiped String is going to be passed in.
 	 */
-	public static final String DELIMITER = "_";
+	public static final char DELIMITER = '_';
 	
 	private RootAlphaNode root;	//The root node of the dictionary tree
 	
@@ -88,14 +88,14 @@ public class Dictionary
 	public PriorityQueue<AlphaNode> getPotentialWords(String letterGroups)
 	{
 		//Delimiter usage checking
-		if(!letterGroups.contains(DELIMITER))
+		if(!letterGroups.contains("" + DELIMITER))
 		{
 			throw new IllegalArgumentException("Please use the " + DELIMITER + " as a delimiter");
 		}
 		
 		//prep the data for analysis
 		letterGroups = letterGroups.trim().toUpperCase();
-		String[] letterPhrasesTemp = letterGroups.split(DELIMITER);
+		String[] letterPhrasesTemp = letterGroups.split("" + DELIMITER);
 //		System.out.println(letterPhrasesTemp.length);
 		String[] letterPhrases = new String[letterPhrasesTemp.length-1]; 
 		System.arraycopy(letterPhrasesTemp, 1, letterPhrases, 0, letterPhrasesTemp.length-1);
@@ -174,7 +174,7 @@ public class Dictionary
 	private static String[] listPotentialString(String str, int position)
 	{
 		//if there are only two characters in the string, then there can only be one possibility.
-		if(str.length() == 2)
+		if(str.length() == 1 || str.length() == 2)
 		{
 			return new String[]{str};
 		}

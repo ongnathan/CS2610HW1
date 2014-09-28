@@ -32,6 +32,7 @@ import backend.dictionary.Dictionary;
  */
 public class MainWindow extends JPanel
 {
+	private static final String CURSOR = "_";
 	
 	private final JPanel inputArea;							//The input area panel including the textbox and the suggestions buttons
 	
@@ -47,6 +48,8 @@ public class MainWindow extends JPanel
 	
 	private final Dictionary dictionary;					//The dictionary
 	
+	private boolean wasSwiped;
+	
 	protected static final Border EMPTY_BORDER = BorderFactory.createEmptyBorder(20, 25, 20, 25);
 	
 	/**
@@ -57,6 +60,7 @@ public class MainWindow extends JPanel
 		super(new BorderLayout());
 		//dictionary
 		this.dictionary = Dictionary.importFromTextFile("all.num");
+		this.wasSwiped = false;
 		
 		//main components
 //		this.mainPanel = new JPanel(new BorderLayout());
@@ -158,11 +162,20 @@ public class MainWindow extends JPanel
 			return;
 		}
 		
+		this.wasSwiped = true;
 		//prepare for new words
 		this.clearSuggestionButtons();
 		
 		//add the most frequent word to the text
-		this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + " " + queue.remove().getWord() + "_");
+		if(currentInputText.length() > 1 && currentInputText.charAt(currentInputText.length()-2) == ' ')
+		{
+			this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + queue.remove().getWord() + "_");
+		}
+		else
+		{
+			this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + " " + queue.remove().getWord() + "_");
+		}
+//		this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + " " + queue.remove().getWord() + "_");
 		
 		//add additional suggestions with less frequency to the buttons
 		for(int i = 0; i < this.alternateSuggestionsButtons.length; i++)
@@ -192,7 +205,7 @@ public class MainWindow extends JPanel
 	 */
 	protected void addText(String text)
 	{
-		this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + text.toUpperCase() + "_");
+		this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + text.toUpperCase() + CURSOR);
 		this.clearSuggestionButtons();
 	}
 	
@@ -206,8 +219,29 @@ public class MainWindow extends JPanel
 		{
 			return;
 		}
-		this.inputText.setText(currText.substring(0,currText.length()-1) + "_");
+		if(this.wasSwiped)
+		{
+			String[] words = currText.split(" ");
+			currText = "";
+			if(words.length == 1)
+			{
+				this.inputText.setText(CURSOR);
+			}
+			else
+			{
+				for(int i = 0; i < words.length-1; i++)
+				{
+					currText += words[i] + " ";
+				}
+				this.inputText.setText(currText + CURSOR);
+			}
+		}
+		else
+		{
+			this.inputText.setText(currText.substring(0,currText.length()-1) + CURSOR);
+		}
 		
+		this.wasSwiped = false;
 		this.clearSuggestionButtons();
 	}
 	
@@ -267,9 +301,9 @@ public class MainWindow extends JPanel
 			{
 				MainWindow mw = new MainWindow();
 				showGUI(mw);
-				mw.getWordFromSwipes("_WA_ASDRT_TRE_ER_");
-				mw.getWordFromSwipes("_IUYTFDS_");
-				mw.getWordFromSwipes("_GHJUIO_OIUHGFD_");
+//				mw.getWordFromSwipes("_WA_ASDRT_TRE_ER_");
+//				mw.getWordFromSwipes("_IUYTFDS_");
+//				mw.getWordFromSwipes("_GHJUIO_OIUHGFD_");
 			}
 		});
 	}
