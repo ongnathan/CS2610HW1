@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
@@ -98,7 +97,7 @@ public class Keyboard extends JPanel implements MouseInputListener
 	}
 	
 	//TODO HANDLE SPACE
-	private String generateFormattedString()
+	private String[] generateFormattedString()
 	{
 		List<Character> chars = new ArrayList<Character>(this.mouseChars);
 		
@@ -118,8 +117,8 @@ public class Keyboard extends JPanel implements MouseInputListener
 			{
 				sb.append(String.valueOf(chars.get(chars.size()-1)));
 			}
-			sb.append(String.valueOf(String.valueOf('_')));
-			return sb.toString();
+			sb.append(Dictionary.DELIMITER);
+			return splitFormattedString(sb.toString());
 		}
 		
 		boolean isCorner = true;
@@ -194,9 +193,96 @@ public class Keyboard extends JPanel implements MouseInputListener
 		sb.append(""+Dictionary.DELIMITER);
 		if(sb.length() > 3 && sb.charAt(sb.length()-2) == sb.charAt(sb.length()-4) && sb.charAt(sb.length()-3) == Dictionary.DELIMITER)
 		{
-			return sb.substring(0, sb.length()-2);
+			return splitFormattedString(sb.substring(0, sb.length()-2));
 		}
-		return sb.toString();
+		return splitFormattedString(sb.toString());
+	}
+	
+	//TODO FIXME
+	//TODO handle space not being on a corner (do a questionable check on the ends and beginnings)
+	private static String[] splitFormattedString(String formatted)
+	{
+//		int numDelimitersBefore = 0;
+//		int delimiterBefore = 0;
+//		int space = 0;
+		String[] split = formatted.split(" ");
+		if(split.length == 1)
+		{
+			return new String[]{formatted};
+		}
+		
+		ArrayList<String> newFormattedStrings = new ArrayList<String>();
+//		boolean skip = false;
+//		boolean skipTwo = false;
+		String combined = "";
+		for(int i = 0; i < formatted.length(); i++)
+		{
+//			if(skip)
+//			{
+//				if(formatted.charAt(i) == Dictionary.DELIMITER)
+//				{
+//					if(skipTwo)
+//					{
+//						skipTwo = false;
+//					}
+//					else
+//					{
+//						skip = false;
+//					}
+//				}
+//			}
+//			else if(formatted.charAt(i) == Dictionary.DELIMITER)
+//			{
+//				combined += "" + formatted.charAt(i);
+//			}
+			if(formatted.charAt(i) == ' ')
+			{
+//				skip = true;
+//				if(i < formatted.length()-2)
+//				{
+//					skipTwo = i < formatted.length()-2 && formatted.charAt(i+1) == Dictionary.DELIMITER && formatted.charAt(i+2) == ' ';
+//				}
+				
+				String[] delimiterSplit = combined.split("" + Dictionary.DELIMITER);
+				if(delimiterSplit.length == 0)
+				{
+					combined = "";
+					continue;
+				}
+				
+				String[] newDelimiterSplit = new String[delimiterSplit.length-2];
+				
+				if(newDelimiterSplit.length == 0)
+				{
+					newFormattedStrings.add("" + Dictionary.DELIMITER + combined.charAt(1) + Dictionary.DELIMITER);
+				}
+				else
+				{
+//					System.arraycopy(delimiterSplit, 1, newDelimiterSplit, 0, newDelimiterSplit.length);
+					
+//					String newFormattedString = "" + Dictionary.DELIMITER;
+//					for(int j = 0; j < delimiterSplit.length; j++)
+//					{
+//						newFormattedString += delimiterSplit[j] + Dictionary.DELIMITER;
+//					}
+//					newFormattedStrings.add(newFormattedString);
+					newFormattedStrings.add(combined);
+				}
+				
+				combined = "";
+			}
+			else
+			{
+				combined += "" + formatted.charAt(i);
+			}
+		}
+		
+		if(/*!skip && */!combined.isEmpty())
+		{
+			newFormattedStrings.add(combined);
+		}
+		
+		return newFormattedStrings.toArray(new String[0]);
 	}
 	
 	protected void addMouseCoordinates()
@@ -378,9 +464,12 @@ public class Keyboard extends JPanel implements MouseInputListener
 					this.mouseCoords.add(new Coordinate(e.getX(), e.getY()));
 				}
 				//TODO do something with the generated formatted string
-				String formattedString = this.generateFormattedString();
-				System.out.println(formattedString);
-				this.parent.getWordFromSwipes(formattedString);
+				String[] formattedStrings = this.generateFormattedString();
+				for(String formattedString : formattedStrings)
+				{
+					System.out.println(formattedString);
+					this.parent.getWordFromSwipes(formattedString);
+				}
 			}
 			else
 			{
@@ -413,8 +502,8 @@ public class Keyboard extends JPanel implements MouseInputListener
 		//empty
 	}
 	
-	public static void main(String args[])
-	{
+//	public static void main(String args[])
+//	{
 //		Keyboard object = new Keyboard();
 //		
 //		JFrame frame = new JFrame("Test");
@@ -422,7 +511,7 @@ public class Keyboard extends JPanel implements MouseInputListener
 //		frame.setVisible(true);
 //		frame.setSize(450,300);
 //		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
-	}
+//	}
 }
 
 class MouseCheck extends TimerTask

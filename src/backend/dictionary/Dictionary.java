@@ -95,10 +95,27 @@ public class Dictionary
 		
 		//prep the data for analysis
 		letterGroups = letterGroups.trim().toUpperCase();
-		String[] letterPhrasesTemp = letterGroups.split("" + DELIMITER);
+		String[] letterPhrases = letterGroups.split("" + DELIMITER);
+		boolean startMaybe = false;
+		boolean endMaybe = false;
 //		System.out.println(letterPhrasesTemp.length);
-		String[] letterPhrases = new String[letterPhrasesTemp.length-1]; 
-		System.arraycopy(letterPhrasesTemp, 1, letterPhrases, 0, letterPhrasesTemp.length-1);
+		if(letterPhrases[0].isEmpty())
+		{
+			String[] letterPhrasesTemp = letterPhrases;
+			letterPhrases = new String[letterPhrasesTemp.length-1];
+			System.arraycopy(letterPhrasesTemp, 1, letterPhrases, 0, letterPhrasesTemp.length-1);
+		}
+		
+		if(letterGroups.charAt(0) != Dictionary.DELIMITER)
+		{
+			startMaybe = true;
+		}
+		
+		if(letterGroups.charAt(letterGroups.length()-1) != Dictionary.DELIMITER)
+		{
+			endMaybe = true;
+		}
+		
 		for(int i = 0; i < letterPhrases.length-1; i++)
 		{
 			if(letterPhrases[i].charAt(letterPhrases[i].length()-1) != letterPhrases[i+1].charAt(0))
@@ -135,7 +152,7 @@ public class Dictionary
 			{
 				phrasePosition = 1;
 			}
-			String[] potentialStrings = listPotentialString(letterPhrases[i], phrasePosition);
+			String[] potentialStrings = listPotentialString(letterPhrases[i], phrasePosition, startMaybe, endMaybe);
 			
 			//filling the new temporary dictionary locations by checking all suffixes from previously held dictionary locations
 			Queue<AlphaNode> newPotentialNodes = new LinkedList<AlphaNode>();
@@ -171,24 +188,24 @@ public class Dictionary
 	 * @param position The position where it is found.  0 is the front, 1 is the middle, 2 is the end, and 3 is if there is only one phrase.
 	 * @return Returns the list of potential String
 	 */
-	private static String[] listPotentialString(String str, int position)
+	private static String[] listPotentialString(String str, int position, boolean startMaybe, boolean endMaybe)
 	{
 		//if there are only two characters in the string, then there can only be one possibility.
-		if(str.length() == 1 || str.length() == 2)
+		if(str.length() == 1 || str.length() == 2 && !startMaybe && !endMaybe)
 		{
 			return new String[]{str};
 		}
 		
 		//separate the first and last characters.
-		String first = String.valueOf(str.charAt(0));
-		String last = String.valueOf(str.charAt(str.length()-1));
+		String first = ((startMaybe && (position == 0 || position == 3)) ? "" : String.valueOf(str.charAt(0)));
+		String last = ((endMaybe && (position == 1 || position == 2)) ? "" : String.valueOf(str.charAt(str.length()-1)));
 		
 		//enumerate ALL possible strings without the first and last character
-		String[] possibleList = listAllStrings(str.substring(1,str.length()-1));
+		String[] possibleList = listAllStrings(str.substring((startMaybe ? 0 : 1),(endMaybe ? str.length() : str.length()-1)));
 		
 		//determine the return list size
 //		int indexOfMult = ((position == 0 || position == 2) ? 2 : ((position == 1) ? 1 : 4));
-		int indexOfMult = (position == 1 || position == 2) ? 2 : 4;
+		int indexOfMult = ((position == 1 || position == 2) ? (endMaybe && position == 2 ? 1 : 2) : (startMaybe && position == 0 ? 2 : 4));
 		
 		String[] potentials = new String[possibleList.length*indexOfMult];
 		
@@ -198,28 +215,36 @@ public class Dictionary
 			String fromPossibleList = possibleList[i];
 			switch(position)
 			{
-//				//Front
-//				case 0:
-//					potentials[indexOfMult*i] = first + fromPossibleList + last;
-//					potentials[indexOfMult*i+1] = first + first + fromPossibleList + last;
-//					break;
-				//Middle
-				case 1:
-//					potentials[i] = first + fromPossibleList + last;
-//					break;
 				//End
 				case 2:
+					if(endMaybe)
+					{
+						potentials[indexOfMult*i] = first + fromPossibleList;
+						break;
+					}
+				//Middle
+				case 1:
 					potentials[indexOfMult*i] = first + fromPossibleList + last;
 					potentials[indexOfMult*i+1] = first + fromPossibleList + last + last;
 					break;
+					
 				//Front
 				case 0:
+					if(startMaybe)
+					{
+						potentials[indexOfMult*i] = fromPossibleList + last;
+						potentials[indexOfMult*i+1] = fromPossibleList + last + last;
+						break;
+					}
 				//Both Front and End
 				case 3:
 					potentials[indexOfMult*i] = first + fromPossibleList + last;
 					potentials[indexOfMult*i+1] = first + first + fromPossibleList + last;
 					potentials[indexOfMult*i+2] = first + fromPossibleList + last + last;
 					potentials[indexOfMult*i+3] = first + first + fromPossibleList + last + last;
+					break;
+				default:
+					throw new UnsupportedOperationException("Unknown position value: " + position);
 			}//end switch(position)
 		}//end for loop
 		
