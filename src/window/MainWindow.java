@@ -10,12 +10,14 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
 import java.util.PriorityQueue;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -23,6 +25,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import window.keyboard.Keyboard;
+import window.levenshteinPopup.LevenshteinPopup;
 import backend.dictionary.AlphaNode;
 import backend.dictionary.Dictionary;
 
@@ -50,6 +53,10 @@ public class MainWindow extends JPanel
 	
 	private boolean wasSwiped;
 	
+	private final JMenuBar menuBar;
+	private final JMenu view;
+	private final JMenuItem viewLevenshtein;
+	
 	protected static final Border EMPTY_BORDER = BorderFactory.createEmptyBorder(20, 25, 20, 25);
 	
 	/**
@@ -68,7 +75,7 @@ public class MainWindow extends JPanel
 		
 		//sample panel
 //		JPanel samplePanel = new JPanel();
-		this.sample = new JTextArea("A QUICK BROWN FOX JUMPS OVER THE LAZY DOG", 1, 34);
+		this.sample = new JTextArea("ACTIONS SPEAK LOUDER THAN WORDS", 1, 34);
 		this.sample.setEditable(false);
 //		samplePanel.add(this.sample);
 		this.sample.setBorder(BorderFactory.createCompoundBorder(EMPTY_BORDER, BorderFactory.createLineBorder(Color.BLUE)));
@@ -117,6 +124,15 @@ public class MainWindow extends JPanel
 //		this.mainPanel.add(new JPanel(), BorderLayout.EAST);
 //		this.mainPanel.add(new JPanel(), BorderLayout.WEST);
 		
+		this.menuBar = new JMenuBar();
+		this.view = new JMenu("View");
+		this.viewLevenshtein = new JMenuItem("Levenshtein Distance Calculator");
+		ViewLevenshteinDistanceMenuListener vldml = new ViewLevenshteinDistanceMenuListener(this.keyboard);
+		this.viewLevenshtein.addActionListener(vldml);
+		
+		this.view.add(this.viewLevenshtein);
+		this.menuBar.add(this.view);
+		
 //		this.add(this.mainPanel);
 //		this.mainFrame.setVisible(true);
 	}//end constructor()
@@ -133,25 +149,43 @@ public class MainWindow extends JPanel
 		}
 	}
 	
+	public JMenuBar getMenuBar()
+	{
+		return this.menuBar;
+	}
+	
+	public String getWordFromSwipes(String[] allGroupsOfPotentialKeys)
+	{
+		String output = "";
+		for(String potentialKeys : allGroupsOfPotentialKeys)
+		{
+			output += this.getWordFromSwipes(potentialKeys);
+		}
+		return output;
+	}
+	
 	/**
 	 * Get the words based on the potential phrases.
 	 * See {@link Dictionary#getPotentialWords(String)} for more information on the format of the String.
 	 * @param potentialKeys The swipe String.
 	 */
-	public void getWordFromSwipes(String potentialKeys)
+	public String getWordFromSwipes(String potentialKeys)
 	{
+		String output = "";
 		String currentInputText = this.inputText.getText();
 		if(potentialKeys.length() == 3)
 		{
-			if(currentInputText.length() > 1 && currentInputText.charAt(currentInputText.length()-2) == ' ')
-			{
-				this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + String.valueOf(potentialKeys.charAt(1)) + "_");
-			}
-			else
-			{
-				this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + " " + String.valueOf(potentialKeys.charAt(1)) + "_");
-			}
-			return;
+//			if(currentInputText.length() > 1 && currentInputText.charAt(currentInputText.length()-2) == ' ')
+//			{
+//				this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + String.valueOf(potentialKeys.charAt(1)) + "_");
+//			}
+//			else
+//			{
+//				this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + " " + String.valueOf(potentialKeys.charAt(1)) + "_");
+//			}
+			output = ""+potentialKeys.charAt(1);
+			this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + output + "_");
+			return output;
 		}
 		
 		//Check if there are any words
@@ -159,7 +193,7 @@ public class MainWindow extends JPanel
 		if(queue.isEmpty())
 		{
 			//FIXME need some kind of error thingy?
-			return;
+			return output;
 		}
 		
 		this.wasSwiped = true;
@@ -169,13 +203,15 @@ public class MainWindow extends JPanel
 		//add the most frequent word to the text
 		if(currentInputText.length() > 1 && currentInputText.charAt(currentInputText.length()-2) == ' ')
 		{
-			this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + queue.remove().getWord() + "_");
+			output = queue.remove().getWord();
+//			this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + output + "_");
 		}
 		else
 		{
-			this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + " " + queue.remove().getWord() + "_");
+			output = " " + queue.remove().getWord();
+//			this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + " " + queue.remove().getWord() + "_");
 		}
-//		this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + " " + queue.remove().getWord() + "_");
+		this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + output + "_");
 		
 		//add additional suggestions with less frequency to the buttons
 		for(int i = 0; i < this.alternateSuggestionsButtons.length; i++)
@@ -188,6 +224,8 @@ public class MainWindow extends JPanel
 			this.alternateSuggestionsButtons[i].setText(suggestionWord);
 			this.alternateSuggestionsButtons[i].setToolTipText(suggestionWord);
 		}
+		
+		return output;
 	}//end method(String)
 	
 	/**
@@ -210,7 +248,8 @@ public class MainWindow extends JPanel
 	}
 	
 	/**
-	 * Removes the last character from the input.
+	 * Removes the last String from the input.
+	 * If the last word was swiped, it will remove the whole word.  Then backspace will continue to remove only single characters.
 	 */
 	protected void backspace()
 	{
@@ -283,10 +322,12 @@ public class MainWindow extends JPanel
 	{
 		//TODO change title
 		JFrame frame = new JFrame("MEWSIK");
-		frame.setMinimumSize(new Dimension(510, 500));
+		frame.setMinimumSize(new Dimension(510, 525));
+//		frame.setMinimumSize(new Dimension(1020, 800));
 		frame.setResizable(true);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.add(mw);
+		frame.setJMenuBar(mw.getMenuBar());
 		frame.setVisible(true);
 	}
 	
@@ -404,5 +445,25 @@ class TextFocusBorderListener implements FocusListener
 	{
 		this.jta.setBorder(BorderFactory.createCompoundBorder(MainWindow.EMPTY_BORDER, BorderFactory.createEtchedBorder(EtchedBorder.RAISED)));
 		this.keyboard.setBorder(MainWindow.EMPTY_BORDER);
+	}
+}
+
+class ViewLevenshteinDistanceMenuListener implements ActionListener
+{
+	private final Keyboard k;
+	
+	public ViewLevenshteinDistanceMenuListener(Keyboard k)
+	{
+		this.k = k;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		JFrame levenshteinPopup = new JFrame("Levenshtein Distance");
+		levenshteinPopup.add(new LevenshteinPopup(this.k.getLevenshteinSet()));
+		levenshteinPopup.pack();
+		levenshteinPopup.setResizable(false);
+		levenshteinPopup.setVisible(true);
 	}
 }

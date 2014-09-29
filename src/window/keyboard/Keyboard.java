@@ -15,6 +15,7 @@ import javax.swing.event.MouseInputListener;
 import window.Coordinate;
 import window.MainWindow;
 import backend.dictionary.Dictionary;
+import backend.stringDist.LevenshteinDistance;
 
 public class Keyboard extends JPanel implements MouseInputListener
 {
@@ -54,6 +55,9 @@ public class Keyboard extends JPanel implements MouseInputListener
 	protected volatile boolean mouseDragged;
 	
 	private final MainWindow parent;
+	
+	private String wholeInput;
+	private String wholeOutput;
 
 	public Keyboard(MainWindow parent)
 	{
@@ -94,6 +98,9 @@ public class Keyboard extends JPanel implements MouseInputListener
 		this.setPreferredSize(new Dimension(ROW_ONE_COL_ONE_LOC+NUM_KEYS_ROW_ONE*KeyRect.WIDTH+NUM_KEYS_ROW_ONE*KeyRect.BORDER_ZONE, 4*KeyRect.HEIGHT+4*KeyRect.BORDER_ZONE));
 		
 		this.parent = parent;
+		
+		this.wholeInput = "";
+		this.wholeOutput = "";
 	}
 	
 	//TODO HANDLE SPACE
@@ -118,7 +125,8 @@ public class Keyboard extends JPanel implements MouseInputListener
 				sb.append(String.valueOf(chars.get(chars.size()-1)));
 			}
 			sb.append(Dictionary.DELIMITER);
-			return splitFormattedString(sb.toString());
+			this.wholeInput = sb.toString();
+			return splitFormattedString(this.wholeInput);
 		}
 		
 		boolean isCorner = true;
@@ -156,7 +164,7 @@ public class Keyboard extends JPanel implements MouseInputListener
 //				if((angle < BIG_THRESHOLD && angle > SMALL_THRESHOLD) || (angle > -BIG_THRESHOLD && angle < -SMALL_THRESHOLD))
 				if(angle < BIG_THRESHOLD && angle > -BIG_THRESHOLD)
 				{
-					System.out.println(thisChar);
+//					System.out.println(thisChar);
 					if(sb.charAt(sb.length()-2) != Dictionary.DELIMITER)
 					{
 						if(sb.charAt(sb.length()-1) != thisChar)
@@ -193,9 +201,14 @@ public class Keyboard extends JPanel implements MouseInputListener
 		sb.append(""+Dictionary.DELIMITER);
 		if(sb.length() > 3 && sb.charAt(sb.length()-2) == sb.charAt(sb.length()-4) && sb.charAt(sb.length()-3) == Dictionary.DELIMITER)
 		{
-			return splitFormattedString(sb.substring(0, sb.length()-2));
+			this.wholeInput = sb.substring(0, sb.length()-2);
+//			return splitFormattedString(sb.substring(0, sb.length()-2));
 		}
-		return splitFormattedString(sb.toString());
+		else
+		{
+			this.wholeInput = sb.toString();
+		}
+		return splitFormattedString(this.wholeInput);
 	}
 	
 	//TODO FIXME
@@ -343,6 +356,17 @@ public class Keyboard extends JPanel implements MouseInputListener
 //		}
 //	}
 	
+	public String[] getLevenshteinSet()
+	{
+		return new String[]{LevenshteinDistance.getRealInputFromCombo(this.wholeInput), this.wholeOutput, LevenshteinDistance.levenshteinDistance(this.wholeInput, this.wholeOutput)};
+	}
+	
+	public String getLastInputLevenshteinDistance()
+	{
+		return LevenshteinDistance.levenshteinDistance(this.wholeInput, this.wholeOutput);
+	}
+	
+	@Override
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
@@ -464,12 +488,16 @@ public class Keyboard extends JPanel implements MouseInputListener
 					this.mouseCoords.add(new Coordinate(e.getX(), e.getY()));
 				}
 				//TODO do something with the generated formatted string
-				String[] formattedStrings = this.generateFormattedString();
-				for(String formattedString : formattedStrings)
-				{
-					System.out.println(formattedString);
-					this.parent.getWordFromSwipes(formattedString);
-				}
+				this.wholeOutput = this.parent.getWordFromSwipes(this.generateFormattedString());
+//				System.out.println(this.wholeInput);
+//				System.out.println(this.wholeOutput);
+//				System.out.println(LevenshteinDistance.levenshteinDistance(this.wholeInput, this.wholeOutput));
+//				String[] formattedStrings = this.generateFormattedString();
+//				for(String formattedString : formattedStrings)
+//				{
+//					System.out.println(formattedString);
+//					this.parent.getWordFromSwipes(formattedString);
+//				}
 			}
 			else
 			{

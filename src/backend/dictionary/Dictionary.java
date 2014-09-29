@@ -93,11 +93,17 @@ public class Dictionary
 		{
 			throw new IllegalArgumentException("Please use the " + DELIMITER + " as a delimiter");
 		}
-		if(letterGroups.contains(" "))
+//		if(letterGroups.contains(" "))
+//		{
+//			PriorityQueue<AlphaNode> spaceQueue = new PriorityQueue<AlphaNode>();
+//			spaceQueue.add(new AlphaNode(' ', this.root));
+//			return spaceQueue;
+//		}
+		if(letterGroups.length() == 3)
 		{
-			PriorityQueue<AlphaNode> spaceQueue = new PriorityQueue<AlphaNode>();
-			spaceQueue.add(new AlphaNode(' ', this.root));
-			return spaceQueue;
+			PriorityQueue<AlphaNode> oneLetter = new PriorityQueue<AlphaNode>();
+			oneLetter.add(this.root.getChild(letterGroups.charAt(1)));
+			return oneLetter;
 		}
 		
 		//prep the data for analysis

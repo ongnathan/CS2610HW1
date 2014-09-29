@@ -61,8 +61,8 @@ public final class Coordinate
 //		
 ////		double angle1 = Math.atan((after.y-middle.y)/(after.x-middle.x));
 ////		double angle2 = Math.atan((middle.y-before.y)/(middle.x-before.x));
-		System.out.println("(" + middle.x + "," + middle.y + ") => (" + after.x + "," + after.y + ") ==> " + angle1);
-		System.out.println("(" + middle.x + "," + middle.y + ") => (" + before.x + "," + before.y + ") ==> " + angle2);
+//		System.out.println("(" + middle.x + "," + middle.y + ") => (" + after.x + "," + after.y + ") ==> " + angle1);
+//		System.out.println("(" + middle.x + "," + middle.y + ") => (" + before.x + "," + before.y + ") ==> " + angle2);
 		double realAngle = 0;
 //		if((angle1 < 0 && angle2 > 0) || (angle1 > 0 && angle2 < 0))
 //		{
@@ -84,8 +84,8 @@ public final class Coordinate
 		{
 			realAngle += 360.0;
 		}
-		System.out.println("Total angle = " + realAngle);
-		System.out.println("----------");
+//		System.out.println("Total angle = " + realAngle);
+//		System.out.println("----------");
 		return realAngle;
 	}
 	

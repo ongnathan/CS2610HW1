@@ -21,6 +21,20 @@ public class RootAlphaNode extends AlphaNode
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
+	public AlphaNode getChild(char c)
+	{
+		if(c == ' ')
+		{
+			return new AlphaNode(' ', this);
+		}
+		return super.getChild(c);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public AlphaNode getNode(String str)
 	{
 		str = str.trim().toUpperCase();
