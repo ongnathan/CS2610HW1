@@ -195,6 +195,10 @@ public class MainWindow extends JPanel
 			//FIXME need some kind of error thingy?
 			return output;
 		}
+		if(queue.size() == 1)
+		{
+			return output+queue.remove().character;
+		}
 		
 		this.wasSwiped = true;
 		//prepare for new words

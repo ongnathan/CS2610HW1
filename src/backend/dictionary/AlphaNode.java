@@ -57,7 +57,7 @@ public class AlphaNode implements Comparable<AlphaNode>
 	 */
 	public AlphaNode(char character, boolean isWord, double usage, String word, AlphaNode parent)
 	{
-		if(!Character.isAlphabetic(character) || parent == null)
+		if(!(Character.isAlphabetic(character) || character == ' ') || parent == null)
 		{
 			throw new IllegalArgumentException("Illegal arguments to AlphaNode");
 		}

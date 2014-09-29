@@ -105,6 +105,12 @@ public class Dictionary
 			oneLetter.add(this.root.getChild(letterGroups.charAt(1)));
 			return oneLetter;
 		}
+//		else if(letterGroups.equals(""+Dictionary.DELIMITER))
+//		{
+//			PriorityQueue<AlphaNode> oneSpace = new PriorityQueue<AlphaNode>();
+//			oneSpace.add(this.root.getChild(' '));
+//			return oneSpace;
+//		}
 		
 		//prep the data for analysis
 		letterGroups = letterGroups.trim().toUpperCase();

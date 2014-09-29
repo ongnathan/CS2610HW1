@@ -218,6 +218,10 @@ public class Keyboard extends JPanel implements MouseInputListener
 //		int numDelimitersBefore = 0;
 //		int delimiterBefore = 0;
 //		int space = 0;
+		if(formatted.equals("_ _"))
+		{
+			return new String[]{formatted};
+		}
 		String[] split = formatted.split(" ");
 		if(split.length == 1)
 		{
