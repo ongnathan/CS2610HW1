@@ -1,0 +1,5 @@
+backend.dictionary
+backend.stringDist
+window
+window.keyboard
+window.levenshteinPopup

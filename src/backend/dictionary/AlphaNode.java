@@ -2,7 +2,7 @@ package backend.dictionary;
 
 /**
  * The node for the dictionary structure.
- * @author Nathan Ong and Jose Joseph
+ * @author Nathan Ong and Jose Michael Joseph
  */
 public class AlphaNode implements Comparable<AlphaNode>
 {

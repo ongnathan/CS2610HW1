@@ -2,20 +2,45 @@ package backend.stringDist;
 
 import backend.dictionary.Dictionary;
 
+/**
+ * 
+ * @author Nathan Ong and Jose Michael Joseph
+ *
+ */
 public class LevenshteinDistance
 {
-	public static final String INSERTION = "+";
-	public static final String DELETION = "-";
-	public static final String SAME = "=";
+	/**
+	 * The character to denote insertions.
+	 */
+	public static final char INSERTION = '+';
 	
-	//do not use
+	/**
+	 * The character to denote deletions.
+	 */
+	public static final char DELETION = '-';
+	
+	/**
+	 * The character to denote that no change was made.
+	 */
+	public static final char SAME = '=';
+	
+	/**
+	 * Empty constructor.
+	 * Do not use.
+	 */
 	public LevenshteinDistance()
 	{
 		
 	}
 	
+	/**
+	 * Returns the whole keyboard input based on the combination String.
+	 * @param comboString The String representing the combination of keys in the Dictionary format.
+	 * @return Returns a String representing a list of keys that was passed on the keyboard.
+	 */
 	public static String getRealInputFromCombo(String comboString)
 	{
+		//empty check
 		if(comboString.isEmpty())
 		{
 			return "";
@@ -36,20 +61,27 @@ public class LevenshteinDistance
 			input += comboSplit[i];
 		}
 		return input;
-	}
+	}//end method(String)
 	
+	/**
+	 * Computes the Levensthein Distance of the input characters and the final output.
+	 * @param comboString The combination String.
+	 * @param finalString The final String.
+	 * @return Returns the String of the Levenshtein Distance computation.
+	 */
 	public static String levenshteinDistance(String comboString, String finalString)
 	{
 		if(comboString.isEmpty())
 		{
 			return "";
 		}
+		
 		//validity check
 		for(int i = 1; i < finalString.length(); i++)
 		{
 			if(!comboString.contains(finalString.substring(i-1,i)))
 			{
-				if(finalString.substring(i-1,i).equals(" "))
+				if(finalString.charAt(i-1) == ' ')
 				{
 					continue;
 				}
@@ -60,15 +92,19 @@ public class LevenshteinDistance
 		//recreate input string
 		String input = getRealInputFromCombo(comboString);
 		
-		//we know the order of both strings are kept.  The Levenshtein Distance is only calculated by deletions, or insertions for doubles.
+		//We know the order of both strings are kept.
+		//The Levenshtein Distance is only calculated by insertions (for doubles) or deletions, since these are the only operations done on the input String.
 		int finalStringCounter = 0;
 		String levenshtein = "";
+		
+		//A space insertion
 		if(finalString.charAt(0) == ' ')
 		{
 			levenshtein += INSERTION+" ";
 			finalStringCounter++;
 		}
 		
+		//Check all values in the String and figure out insertions and deletions.
 		for(int i = 0; i < input.length(); i++)
 		{
 			char fromInput = input.charAt(i);
@@ -92,24 +128,29 @@ public class LevenshteinDistance
 					}
 				}
 				continue;
-			}
+			}//end if
 			levenshtein += DELETION+fromInput;
-		}
+		}//end for
 		
 		return levenshtein;
-	}
+	}//end method(String,String)
 	
+	/**
+	 * Determines the number of operations based on the Levenshtein String. 
+	 * @param levenshteinString The Levenshtein String as formatted by this class.
+	 * @return Returns the number of operations that it took to change the String.
+	 */
 	public static int calculateLevenshteinDistance(String levenshteinString)
 	{
 		int distance = 0;
 		for(int i = 0; i < levenshteinString.length(); i++)
 		{
 			char c = levenshteinString.charAt(i);
-			if(c == '+' || c == '-')
+			if(c == INSERTION || c == DELETION)
 			{
 				distance++;
 			}
 		}
 		return distance;
 	}
-}
+}//end class

@@ -35,7 +35,12 @@ import backend.dictionary.Dictionary;
  */
 public class MainWindow extends JPanel
 {
-	private static final String CURSOR = "_";
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1485954960228722431L;
+
+	private static final String CURSOR = "_";				//The cursor character
 	
 	private final JPanel inputArea;							//The input area panel including the textbox and the suggestions buttons
 	
@@ -51,12 +56,15 @@ public class MainWindow extends JPanel
 	
 	private final Dictionary dictionary;					//The dictionary
 	
-	private boolean wasSwiped;
+	private boolean wasSwiped;								//Whether or not the last word was swiped.
 	
-	private final JMenuBar menuBar;
-	private final JMenu view;
-	private final JMenuItem viewLevenshtein;
+	private final JMenuBar menuBar;							//The menu bar
+	private final JMenu view;								//The menu
+	private final JMenuItem viewLevenshtein;				//The menu item to view the Levenshtein Distance
 	
+	/**
+	 * An empty border.
+	 */
 	protected static final Border EMPTY_BORDER = BorderFactory.createEmptyBorder(20, 25, 20, 25);
 	
 	/**
@@ -66,18 +74,15 @@ public class MainWindow extends JPanel
 	{
 		super(new BorderLayout());
 		//dictionary
-		this.dictionary = Dictionary.importFromTextFile("word_freq.txt");
+		this.dictionary = Dictionary.importFromTextFile("all.num");
 		this.wasSwiped = false;
 		
 		//main components
-//		this.mainPanel = new JPanel(new BorderLayout());
 		this.inputArea = new JPanel(new GridLayout(3,1));
 		
 		//sample panel
-//		JPanel samplePanel = new JPanel();
 		this.sample = new JTextArea("ACTIONS SPEAK LOUDER THAN WORDS", 1, 34);
 		this.sample.setEditable(false);
-//		samplePanel.add(this.sample);
 		this.sample.setBorder(BorderFactory.createCompoundBorder(EMPTY_BORDER, BorderFactory.createLineBorder(Color.BLUE)));
 		
 		//input text area
@@ -101,7 +106,6 @@ public class MainWindow extends JPanel
 		this.inputArea.add(this.alternateSuggestionsPanel);
 		
 		//keyboard panel
-//		this.keyboard = new JPanel();
 		this.keyboard = new Keyboard(this);
 		this.keyboard.setBorder(EMPTY_BORDER);
 		
@@ -118,11 +122,8 @@ public class MainWindow extends JPanel
 		this.keyboard.addFocusListener(this.tfbl);
 		
 		//add all components to the main panel
-//		this.mainPanel.add(samplePanel, BorderLayout.NORTH);
 		this.add(this.inputArea, BorderLayout.NORTH);
 		this.add(this.keyboard, BorderLayout.CENTER);
-//		this.mainPanel.add(new JPanel(), BorderLayout.EAST);
-//		this.mainPanel.add(new JPanel(), BorderLayout.WEST);
 		
 		this.menuBar = new JMenuBar();
 		this.view = new JMenu("View");
@@ -132,9 +133,6 @@ public class MainWindow extends JPanel
 		
 		this.view.add(this.viewLevenshtein);
 		this.menuBar.add(this.view);
-		
-//		this.add(this.mainPanel);
-//		this.mainFrame.setVisible(true);
 	}//end constructor()
 	
 	/**
@@ -149,11 +147,20 @@ public class MainWindow extends JPanel
 		}
 	}
 	
+	/**
+	 * Gets the JMenuBar.
+	 * @return Returns the JMenuBar associated with the window.
+	 */
 	public JMenuBar getMenuBar()
 	{
 		return this.menuBar;
 	}
 	
+	/**
+	 * Gets all the words associated with the list of combination strings.
+	 * @param allGroupsOfPotentialKeys The array of Strings containing combination strings.
+	 * @return Returns the whole output that was generated.
+	 */
 	public String getWordFromSwipes(String[] allGroupsOfPotentialKeys)
 	{
 		String output = "";
@@ -168,21 +175,15 @@ public class MainWindow extends JPanel
 	 * Get the words based on the potential phrases.
 	 * See {@link Dictionary#getPotentialWords(String)} for more information on the format of the String.
 	 * @param potentialKeys The swipe String.
+	 * @return Returns the output String.
 	 */
 	public String getWordFromSwipes(String potentialKeys)
 	{
 		String output = "";
-		String currentInputText = this.inputText.getText();
+		
+		//if the keys is in the form "_X_" then just add the character.
 		if(potentialKeys.length() == 3)
 		{
-//			if(currentInputText.length() > 1 && currentInputText.charAt(currentInputText.length()-2) == ' ')
-//			{
-//				this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + String.valueOf(potentialKeys.charAt(1)) + "_");
-//			}
-//			else
-//			{
-//				this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + " " + String.valueOf(potentialKeys.charAt(1)) + "_");
-//			}
 			output = ""+potentialKeys.charAt(1);
 			this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + output + "_");
 			return output;
@@ -192,28 +193,25 @@ public class MainWindow extends JPanel
 		PriorityQueue<AlphaNode> queue = this.dictionary.getPotentialWords(potentialKeys);
 		if(queue.isEmpty())
 		{
-			//FIXME need some kind of error thingy?
+			//if not found, then display question marks
+			this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + " ???" + "_");
+			this.wasSwiped = true;
 			return output;
-		}
-		if(queue.size() == 1)
-		{
-			return output+queue.remove().character;
 		}
 		
 		this.wasSwiped = true;
 		//prepare for new words
 		this.clearSuggestionButtons();
+		String currentInputText = this.inputText.getText();
 		
 		//add the most frequent word to the text
 		if(currentInputText.length() > 1 && currentInputText.charAt(currentInputText.length()-2) == ' ')
 		{
 			output = queue.remove().getWord();
-//			this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + output + "_");
 		}
 		else
 		{
 			output = " " + queue.remove().getWord();
-//			this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + " " + queue.remove().getWord() + "_");
 		}
 		this.inputText.setText(this.inputText.getText().substring(0, this.inputText.getText().length()-1) + output + "_");
 		
@@ -257,11 +255,14 @@ public class MainWindow extends JPanel
 	 */
 	protected void backspace()
 	{
+		//remove the cursor
 		String currText = this.inputText.getText().substring(0,this.inputText.getText().length()-1);
 		if(currText.isEmpty())
 		{
 			return;
 		}
+		
+		//if the word was swiped, remove the word
 		if(this.wasSwiped)
 		{
 			String[] words = currText.split(" ");
@@ -278,15 +279,19 @@ public class MainWindow extends JPanel
 				}
 				this.inputText.setText(currText + CURSOR);
 			}
-		}
+		}//end if
+		//otherwise, remove a character
 		else
 		{
 			this.inputText.setText(currText.substring(0,currText.length()-1) + CURSOR);
 		}
 		
+		//the previous word, no matter if it was swiped or not, cannot be removed as a whole.
 		this.wasSwiped = false;
+		
+		//clear the suggestions buttons
 		this.clearSuggestionButtons();
-	}
+	}//end method()
 	
 	/**
 	 * Switches the last word to a new one.
@@ -317,14 +322,17 @@ public class MainWindow extends JPanel
 		{
 			this.alternateSuggestionsButtons[i].setText(null);
 		}
-	}
+		
+		//for the Levenshtein Distance
+		this.keyboard.switchToWord(suggestion);
+	}//end method(String)
 	
 	/**
 	 * Shows the frame.
+	 * @param mw The MainWindow to display.
 	 */
 	public static void showGUI(MainWindow mw)
 	{
-		//TODO change title
 		JFrame frame = new JFrame("MEWSIK");
 		frame.setMinimumSize(new Dimension(510, 525));
 //		frame.setMinimumSize(new Dimension(1020, 800));
@@ -352,46 +360,60 @@ public class MainWindow extends JPanel
 			}
 		});
 	}
-}
+}//end class
 
 /**
- * The button listener.
- * @author Nathan Ong
- *
+ * The suggestions buttons listener.
+ * @author Nathan Ong and Jose Michael Joseph
  */
 class SuggestionButtonListener implements ActionListener
 {
-	private final MainWindow mw;
+	private final MainWindow mw;	//the parent main window
 	
+	/**
+	 * The constructor.
+	 * @param mw The parent MainWindow.
+	 */
 	public SuggestionButtonListener(MainWindow mw)
 	{
 		this.mw = mw;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * Switches the word to the new suggestion.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
 		this.mw.switchWordToSuggestion(e.getActionCommand());
 	}
-}
+}//end class
 
 /**
  * The keyboard listener.
- * @author Nathan Ong
- *
+ * @author Nathan Ong and Jose Michael Joseph
  */
 class KeyboardListener implements KeyListener
 {
-	private final MainWindow mw;
-	private final Keyboard k;
+	private final MainWindow mw;	//the parent main window
+	private final Keyboard k;		//the keyboard
 	
+	/**
+	 * The constructor.
+	 * @param mw The parent MainWindow.
+	 * @param k The Keyboard.
+	 */
 	public KeyboardListener(MainWindow mw, Keyboard k)
 	{
 		this.mw = mw;
 		this.k = k;
 	}
-
-	//TODO FIGURE OUT HOW TO SIMULATE CLICK
+	
+	/**
+	 * {@inheritDoc}
+	 * Only cares about alphabetic characters and the space.
+	 */
 	@Override
 	public void keyTyped(KeyEvent e)
 	{
@@ -402,7 +424,11 @@ class KeyboardListener implements KeyListener
 			this.k.simulateKeyPress(c);
 		}
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 * Cares only about the backspace.
+	 */
 	@Override
 	public void keyPressed(KeyEvent e)
 	{
@@ -411,56 +437,83 @@ class KeyboardListener implements KeyListener
 			this.mw.backspace();
 		}
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 * Unused.
+	 */
 	@Override
 	public void keyReleased(KeyEvent e)
 	{
 		//empty
 	}
-}
+}//end class
 
-//FIXME need to change when the keyboard becomes available
 /**
  * The focus listener.
  * Shows a border on the text area and the keyboard when focused.
- * @author Nathan Ong
- *
+ * @author Nathan Ong and Jose Michael Joseph
  */
 class TextFocusBorderListener implements FocusListener
 {
-	private final JTextArea jta;
-	private final JPanel keyboard;
+	private final JTextArea jta;	//The text area.
+	private final JPanel keyboard;	//The keyboard.
 	
+	/**
+	 * The constructor.
+	 * @param jta The JTextArea input area.
+	 * @param keyboard The keyboard.
+	 */
 	public TextFocusBorderListener(JTextArea jta, JPanel keyboard)
 	{
 		this.jta = jta;
 		this.keyboard = keyboard;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * Focused gained changes the border.
+	 */
 	@Override
 	public void focusGained(FocusEvent e)
 	{
 		this.jta.setBorder(BorderFactory.createCompoundBorder(MainWindow.EMPTY_BORDER, BorderFactory.createLineBorder(Color.BLACK)));
 		this.keyboard.setBorder(BorderFactory.createCompoundBorder(MainWindow.EMPTY_BORDER, BorderFactory.createLineBorder(Color.BLACK)));
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 * Focused lost changes the border.
+	 */
 	@Override
 	public void focusLost(FocusEvent e)
 	{
 		this.jta.setBorder(BorderFactory.createCompoundBorder(MainWindow.EMPTY_BORDER, BorderFactory.createEtchedBorder(EtchedBorder.RAISED)));
 		this.keyboard.setBorder(MainWindow.EMPTY_BORDER);
 	}
-}
+}//end class
 
+/**
+ * The menu listener for viewing the Levenshtein Distance.
+ * @author Nathan Ong and Jose Michael Joseph
+ */
 class ViewLevenshteinDistanceMenuListener implements ActionListener
 {
-	private final Keyboard k;
+	private final Keyboard k;	//The Keyboard
 	
+	/**
+	 * The constructor.
+	 * @param k The Keyboard.
+	 */
 	public ViewLevenshteinDistanceMenuListener(Keyboard k)
 	{
 		this.k = k;
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 * Shows a popup computing the Levenshtein Distance.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
@@ -470,4 +523,4 @@ class ViewLevenshteinDistanceMenuListener implements ActionListener
 		levenshteinPopup.setResizable(false);
 		levenshteinPopup.setVisible(true);
 	}
-}
+}//end class

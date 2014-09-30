@@ -19,38 +19,6 @@ public class RootAlphaNode extends AlphaNode
 	}
 	
 	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public AlphaNode getChild(char c)
-	{
-		if(c == ' ')
-		{
-			return new AlphaNode(' ', this);
-		}
-		return super.getChild(c);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public AlphaNode getNode(String str)
-	{
-		str = str.trim().toUpperCase();
-		if(str.length() == 0)
-		{
-			return this;
-		}
-		int index = str.charAt(0) - 'A';
-		if(super.nextLetters[index] == null)
-		{
-			return null;
-		}
-		return super.nextLetters[index].getNode(str);
-	}
-	
-	/**
 	 * Adds a word to the root.
 	 * @param word The word to add to the tree.
 	 * @param usage The frequency of the word.
@@ -84,5 +52,37 @@ public class RootAlphaNode extends AlphaNode
 			return false;
 		}
 		return super.isSuffix(word);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public AlphaNode getChild(char c)
+	{
+		if(c == ' ')
+		{
+			return new AlphaNode(' ', this);
+		}
+		return super.getChild(c);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public AlphaNode getNode(String str)
+	{
+		str = str.trim().toUpperCase();
+		if(str.length() == 0)
+		{
+			return this;
+		}
+		int index = str.charAt(0) - 'A';
+		if(super.nextLetters[index] == null)
+		{
+			return null;
+		}
+		return super.nextLetters[index].getNode(str);
 	}
 }//end class

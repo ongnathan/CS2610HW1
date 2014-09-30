@@ -16,7 +16,7 @@ import java.util.Queue;
 /**
  * Acts as the dictionary for the program.
  * This dictionary also is able to parse swiped values.
- * @author Nathan Ong and Jose Joseph
+ * @author Nathan Ong and Jose Michael Joseph
  */
 public class Dictionary
 {
@@ -89,35 +89,24 @@ public class Dictionary
 	public PriorityQueue<AlphaNode> getPotentialWords(String letterGroups)
 	{
 		//Delimiter usage checking
-		if(!letterGroups.contains("" + DELIMITER))
-		{
-			throw new IllegalArgumentException("Please use the " + DELIMITER + " as a delimiter");
-		}
-//		if(letterGroups.contains(" "))
+//		if(!letterGroups.contains("" + DELIMITER))
 //		{
-//			PriorityQueue<AlphaNode> spaceQueue = new PriorityQueue<AlphaNode>();
-//			spaceQueue.add(new AlphaNode(' ', this.root));
-//			return spaceQueue;
+//			throw new IllegalArgumentException("Please use the " + DELIMITER + " as a delimiter");
 //		}
+		
+		//single letter exception
 		if(letterGroups.length() == 3)
 		{
 			PriorityQueue<AlphaNode> oneLetter = new PriorityQueue<AlphaNode>();
 			oneLetter.add(this.root.getChild(letterGroups.charAt(1)));
 			return oneLetter;
 		}
-//		else if(letterGroups.equals(""+Dictionary.DELIMITER))
-//		{
-//			PriorityQueue<AlphaNode> oneSpace = new PriorityQueue<AlphaNode>();
-//			oneSpace.add(this.root.getChild(' '));
-//			return oneSpace;
-//		}
 		
 		//prep the data for analysis
 		letterGroups = letterGroups.trim().toUpperCase();
 		String[] letterPhrases = letterGroups.split("" + DELIMITER);
 		boolean startMaybe = false;
 		boolean endMaybe = false;
-//		System.out.println(letterPhrasesTemp.length);
 		if(letterPhrases[0].isEmpty())
 		{
 			String[] letterPhrasesTemp = letterPhrases;
@@ -125,23 +114,26 @@ public class Dictionary
 			System.arraycopy(letterPhrasesTemp, 1, letterPhrases, 0, letterPhrasesTemp.length-1);
 		}
 		
+		//if the front portion is unsure
 		if(letterGroups.charAt(0) != Dictionary.DELIMITER)
 		{
 			startMaybe = true;
 		}
 		
+		//if the end portion is unsure
 		if(letterGroups.charAt(letterGroups.length()-1) != Dictionary.DELIMITER)
 		{
 			endMaybe = true;
 		}
 		
-		for(int i = 0; i < letterPhrases.length-1; i++)
-		{
-			if(letterPhrases[i].charAt(letterPhrases[i].length()-1) != letterPhrases[i+1].charAt(0))
-			{
-				throw new IllegalArgumentException("The string does not follow the correct format");
-			}
-		}
+		//sanity checking
+//		for(int i = 0; i < letterPhrases.length-1; i++)
+//		{
+//			if(letterPhrases[i].charAt(letterPhrases[i].length()-1) != letterPhrases[i+1].charAt(0))
+//			{
+//				throw new IllegalArgumentException("The string does not follow the correct format");
+//			}
+//		}
 		
 		//hold the priority queue with the AlphaNodes representing words
 		PriorityQueue<AlphaNode> potentialWords = new PriorityQueue<AlphaNode>(100, Collections.reverseOrder());
@@ -197,7 +189,7 @@ public class Dictionary
 		}//end for loop
 		
 		return potentialWords;
-	}
+	}//end method(String)
 	
 	/**
 	 * Enumerates all potential strings, where the first and last characters MUST be in the String.
@@ -205,6 +197,8 @@ public class Dictionary
 	 * Handles double letter repetition as well.
 	 * @param str The String to enumerate.
 	 * @param position The position where it is found.  0 is the front, 1 is the middle, 2 is the end, and 3 is if there is only one phrase.
+	 * @param startMaybe Whether or not the starting characters may be included in the String.  This is used for a space that precedes the word.
+	 * @param endMaybe Whether or not the ending characters may be included in the String.  This is used for a space that ends the word.
 	 * @return Returns the list of potential String
 	 */
 	private static String[] listPotentialString(String str, int position, boolean startMaybe, boolean endMaybe)
@@ -219,13 +213,11 @@ public class Dictionary
 		String first = ((startMaybe && (position == 0 || position == 3)) ? "" : String.valueOf(str.charAt(0)));
 		String last = ((endMaybe && (position == 1 || position == 2)) ? "" : String.valueOf(str.charAt(str.length()-1)));
 		
-		//enumerate ALL possible strings without the first and last character
+		//enumerate ALL possible strings without the first and last character, assuming we are sure of the first and last character
 		String[] possibleList = listAllStrings(str.substring((startMaybe ? 0 : 1),(endMaybe ? str.length() : str.length()-1)));
 		
 		//determine the return list size
-//		int indexOfMult = ((position == 0 || position == 2) ? 2 : ((position == 1) ? 1 : 4));
 		int indexOfMult = ((position == 1 || position == 2) ? (endMaybe && position == 2 ? 1 : 2) : (startMaybe && position == 0 ? 2 : 4));
-		
 		String[] potentials = new String[possibleList.length*indexOfMult];
 		
 		//add the first and last characters and their possible enumerations to the strings that were found without the first and last characters.
@@ -278,15 +270,18 @@ public class Dictionary
 	 */
 	private static String[] listAllStrings(String str)
 	{
+		//if empty string
 		if(str.length() == 0)
 		{
 			return new String[]{""};
 		}
+		//if one character in the string
 		if(str.length() == 1)
 		{
 			return new String[]{"", str, str+str};
 		}
 		
+		//otherwise recursively figure it out.
 		String[] list = new String[(int) Math.pow(3, str.length())];
 		int index = 0;
 		String firstChar = String.valueOf(str.charAt(0));
@@ -344,14 +339,13 @@ public class Dictionary
 				
 				//first element is frequency, second element is the word
 				String[] split = line.split(" ");
-				split[0] = split[0].toUpperCase();
+				split[1] = split[1].toUpperCase();
 				
 				//if there are non-alphabetic characters, ignore them.
-				if(split[0].matches("[A-Z]+"))
+				if(split[1].matches("[A-Z]+"))
 				{
-//					System.out.println(split[1]);
 					//otherwise add them to the dictionary
-					if(!d.addWord(split[0], Double.parseDouble(split[4])))
+					if(!d.addWord(split[1], Double.parseDouble(split[0])))
 					{
 						reader.close();
 						throw new IllegalStateException("PROBLEM HERE");
@@ -385,7 +379,7 @@ public class Dictionary
 	 */
 	public static void main(String[] args)
 	{
-		Dictionary d = Dictionary.importFromTextFile("word_freq.txt"); //http://www.kilgarriff.co.uk/bnc-readme.html#raw
+		Dictionary d = Dictionary.importFromTextFile("all.num"); //http://www.kilgarriff.co.uk/bnc-readme.html#raw
 //		d.addWord("WATER", 15);
 //		d.addWord("WAITER", 5);
 //		d.addWord("WATTER", 10);
