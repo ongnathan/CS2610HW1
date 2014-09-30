@@ -71,7 +71,7 @@ public class LevenshteinDistance
 	 */
 	public static String levenshteinDistance(String comboString, String finalString)
 	{
-		if(comboString.isEmpty())
+		if(comboString.isEmpty() || finalString.isEmpty())
 		{
 			return "";
 		}
@@ -111,7 +111,7 @@ public class LevenshteinDistance
 			char fromFinal = finalString.charAt(finalStringCounter);
 			if(fromInput == fromFinal)
 			{
-				levenshtein += SAME+fromInput;
+				levenshtein += ""+SAME+fromInput;
 				finalStringCounter++;
 				//check for doubles
 				if(finalStringCounter >= finalString.length())
@@ -120,7 +120,7 @@ public class LevenshteinDistance
 				}
 				if(fromInput == finalString.charAt(finalStringCounter))
 				{
-					levenshtein += INSERTION+fromInput;
+					levenshtein += ""+INSERTION+fromInput;
 					finalStringCounter++;
 					if(finalStringCounter >= finalString.length())
 					{
@@ -129,7 +129,7 @@ public class LevenshteinDistance
 				}
 				continue;
 			}//end if
-			levenshtein += DELETION+fromInput;
+			levenshtein += ""+DELETION+fromInput;
 		}//end for
 		
 		return levenshtein;
