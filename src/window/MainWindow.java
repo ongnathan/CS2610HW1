@@ -337,7 +337,7 @@ public class MainWindow extends JPanel
 		frame.setMinimumSize(new Dimension(510, 525));
 //		frame.setMinimumSize(new Dimension(1020, 800));
 		frame.setResizable(true);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(mw);
 		frame.setJMenuBar(mw.getMenuBar());
 		frame.setVisible(true);
